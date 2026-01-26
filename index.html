@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>浙大模拟器</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="header-left">
+        <h1><i class="fas fa-graduation-cap"></i> 浙大模拟器</h1>
+      </div>
+      <div class="header-right">
+         <div class="dev-credits" style="color: rgba(255,255,255,0.8); margin-bottom: 5px; text-align: right;">开发者：思夜、婼小可怜的大魔王</div>
+         <div class="time-display"><i class="far fa-calendar-alt"></i><span id="time">入学准备中...</span></div>
+      </div>
+    </div>
+
+    <div class="game-layout">
+
+        <div class="col-left panel">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <i class="fas fa-user-graduate"></i> 学生档案
+                    <span id="major-badge" style="font-size:12px; background:var(--surface-1); padding:2px 8px; border-radius:10px; color:var(--text-0); border:1px solid var(--border-0); margin-left: auto;">未分流</span>
+                </div>
+            </div>
+            <div class="panel-content">
+                <div class="stats-grid" id="stats"></div>
+            </div>
+        </div>
+
+        <div class="col-center">
+            <div class="tab-container">
+                <button class="tab-btn active" data-tab="home"><i class="fas fa-home"></i> 首页</button>
+                <button class="tab-btn" data-tab="project"><i class="fas fa-project-diagram"></i> 项目</button>
+                <button class="tab-btn" data-tab="shop"><i class="fas fa-shopping-cart"></i> 商店</button>
+                <button class="tab-btn" data-tab="system"><i class="fas fa-cog"></i> 系统</button>
+            </div>
+
+            <div class="center-content-area">
+                <div id="tab-home" class="tab-pane active">
+                    <h2 class="section-title" style="margin-bottom: 20px; font-size: 18px; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px;">
+                        <i class="fas fa-running"></i> <span id="action-month-type">本月行动</span>
+                    </h2>
+
+                    <!-- 恢复进度条 -->
+                    <div class="phase-indicator" id="phase-bar">
+                        <div class="phase-step" id="phase-major"><i class="fas fa-star"></i> 主要行动</div>
+                        <div class="phase-arrow"><i class="fas fa-chevron-right"></i></div>
+                        <div class="phase-step" id="phase-minor"><i class="fas fa-adjust"></i> 次要行动</div>
+                        <div class="phase-arrow"><i class="fas fa-chevron-right"></i></div>
+                        <div class="phase-step" id="phase-done"><i class="fas fa-check-circle"></i> 本月结束</div>
+                    </div>
+
+                    <div class="actions-grid"></div>
+
+                    <!-- 恢复下个月按钮 -->
+                    <button class="next-month-btn" id="next-month">
+                        <i class="fas fa-forward"></i> 进入下个月
+                    </button>
+                </div>
+
+                <div id="tab-project" class="tab-pane"><div style="text-align: center; padding: 40px; color: var(--text-1);">项目功能开发中...</div></div>
+                <div id="tab-shop" class="tab-pane"><div style="text-align: center; padding: 40px; color: var(--text-1);">校园超市装修中...</div></div>
+
+                <div id="tab-system" class="tab-pane">
+                    <div class="system-page">
+                        <div class="system-section">
+                            <div class="system-section-title"><i class="fas fa-palette"></i> 外观</div>
+                            <div class="system-card">
+                                <div class="system-row">
+                                    <div>
+                                        <div class="system-row-title">深色模式</div>
+                                        <div class="system-row-desc">更护眼的夜间配色，会自动记住你的选择。</div>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" id="dark-mode-toggle">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="system-section">
+                            <div class="system-section-title"><i class="fas fa-save"></i> 进度管理</div>
+                            <div id="save-slots-container" class="save-slots-grid"></div>
+                        </div>
+
+                        <div class="system-section">
+                            <div class="system-section-title"><i class="fas fa-triangle-exclamation"></i> 危险操作</div>
+                            <div class="system-card">
+                                <button class="modal-btn-cancel" onclick="location.reload()" style="width: 100%;">重置游戏</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-right panel">
+            <div class="panel-header"><div class="panel-title"><i class="fas fa-scroll"></i> 事件日志</div></div>
+            <div class="panel-content" style="display: flex; flex-direction: column;">
+                <div class="panel-title" style="font-size: 15px; margin-bottom: 8px; color: var(--text-1);"><i class="fas fa-trophy" style="color: #ffc107;"></i> 成就</div>
+                <div class="skills-container" id="skills"></div>
+                <div class="log-container" id="log"></div>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="start-modal" style="display: flex;">
+    <div class="modal-content">
+      <h2 style="color:var(--primary-color); margin-bottom:15px;"><i class="fas fa-university"></i> 欢迎入学</h2>
+      <p style="font-size: 16px; color: var(--text-1); margin-bottom: 20px;">请选择你的所属学部（大类），大一寒假前将进行专业分流。</p>
+      <div class="major-grid" id="major-options"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="diversion-modal" style="display: none;">
+    <div class="modal-content">
+      <h2 style="color:var(--primary-color); margin-bottom:15px;"><i class="fas fa-exchange-alt"></i> 专业分流</h2>
+      <div class="major-grid" id="diversion-options"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="roll-modal" style="display: none;">
+    <div class="modal-content profile-content">
+      <h2 class="profile-title"><i class="fas fa-dice"></i> 入学档案生成</h2>
+      <div class="roll-result-container" id="roll-results">
+          <div class="roll-card" id="card-study"><div class="roll-title">学识</div><div class="roll-value"></div><div class="roll-desc"></div></div>
+          <div class="roll-card" id="card-social"><div class="roll-title">社交</div><div class="roll-value"></div><div class="roll-desc"></div></div>
+          <div class="roll-card" id="card-skill"><div class="roll-title">技能</div><div class="roll-value"></div><div class="roll-desc"></div></div>
+          <div class="roll-card" id="card-health"><div class="roll-title">健康</div><div class="roll-value"></div><div class="roll-desc"></div></div>
+      </div>
+
+      <div class="roll-family-section" style="margin-bottom: 25px; padding: 15px; background: rgba(255,255,255,0.9); border-radius: 12px; display: flex; align-items: center; justify-content: space-between; border: 2px dashed rgba(255,255,255,0.5);">
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <div class="family-icon" style="font-size: 24px; color: var(--primary-color); width: 50px; height: 50px; background: #e6f0fa; border-radius: 50%; display: flex; align-items: center; justify-content: center;"><i class="fas fa-home"></i></div>
+            <div style="text-align: left;">
+                <div style="font-size: 13px; color: #666; margin-bottom: 2px;">家庭背景</div>
+                <div id="roll-family-name" style="font-size: 18px; font-weight: bold; color: #333;"></div>
+                <div id="roll-family-desc" style="font-size: 12px; color: #888;"></div>
+            </div>
+        </div>
+        <div style="text-align: right;">
+            <div style="font-size: 13px; color: #666; margin-bottom: 2px;">初始资金</div>
+            <div id="roll-initial-money" style="font-size: 20px; font-weight: bold; color: #ff9e43;"></div>
+        </div>
+      </div>
+      <button class="modal-btn profile-btn" id="btn-confirm-roll">开启大学生活</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="admission-modal" style="display: none;">
+    <div class="modal-content admission-letter">
+      <div class="zju-logo"><i class="fas fa-university"></i></div>
+      <div class="admission-highlight">录取通知书</div>
+      <div class="admission-text">
+        恭喜你被录取到<br><strong style="font-size: 26px;">浙江大学</strong><br><br>
+        你将同历史上许多著名的名字一样，<br>成为 <span class="star-highlight">灿若星辰的浙大人</span>
+      </div>
+      <button class="modal-btn" style="background: white; color: var(--primary-color); font-weight: bold;" id="btn-start-game">我来报到了！</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="confirm-modal" style="display: none;">
+    <div class="modal-content" style="max-width: 400px;">
+      <h3 style="margin-bottom: 15px; color: var(--primary-color);">确认</h3>
+      <p id="confirm-content" style="margin-bottom: 20px; color: var(--text-0); font-size: 16px;"></p>
+      <div style="display:flex; justify-content:center;">
+          <!-- 确定按钮 -->
+          <button class="modal-btn" id="btn-confirm-yes">确定</button>
+          <!-- 取消按钮 -->
+          <button class="modal-btn-cancel" id="btn-confirm-no">取消</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="message-modal" style="display: none;">
+    <div class="modal-content" style="max-width: 400px;">
+      <h3 id="msg-title" style="margin-bottom: 15px; color: var(--primary-color);">提示</h3>
+      <div id="msg-content" style="margin-bottom: 20px; color: var(--text-0); font-size: 16px;"></div>
+      <button class="modal-btn" id="btn-msg-ok">确定</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="semester-modal" style="display: none;">
+    <div class="modal-content semester-content">
+      <div class="semester-header">
+        <i class="fas fa-book-reader"></i> 新学期开启
+      </div>
+      <div class="semester-body">
+        <div class="semester-info-item">
+          <div class="info-label">本学期目标学分</div>
+          <div class="info-value" id="sem-target-credits">0</div>
+        </div>
+        <div class="semester-divider"></div>
+        <div class="semester-info-item">
+          <div class="info-label">专业总学分要求</div>
+          <div class="info-value" id="sem-total-credits">0</div>
+        </div>
+      </div>
+      <button class="modal-btn semester-btn" id="btn-semester-start">开始奋斗</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="ending-modal" style="display: none;">
+    <div class="modal-content ending-letter">
+      <div id="ending-result"></div>
+      <div class="ending-stats" id="ending-stats"></div>
+      <button class="modal-btn" onclick="location.reload()">重新开始游戏</button>
+    </div>
+  </div>
+
+  <div class="achievement-toast" id="achievement-toast" style="display: none;">
+    <div class="achievement-icon"><i class="fas fa-trophy"></i></div>
+    <div class="achievement-content">
+      <h4 id="achievement-title"></h4>
+      <p id="achievement-desc"></p>
+    </div>
+  </div>
+
+  <!-- 随机事件弹窗 -->
+  <div class="modal-overlay" id="event-modal" style="display: none;">
+    <div class="modal-content event-content">
+      <div class="event-header">
+        <div class="event-icon" id="event-icon"><i class="fas fa-star"></i></div>
+        <h2 class="event-title" id="event-title">事件标题</h2>
+      </div>
+      <div class="event-body">
+        <p class="event-description" id="event-description">事件描述内容...</p>
+      </div>
+      <div class="event-options" id="event-options">
+        <!-- 选项按钮动态生成 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 事件结果弹窗 -->
+  <div class="modal-overlay" id="event-result-modal" style="display: none;">
+    <div class="modal-content event-result-content">
+      <div class="event-result-header">
+        <div class="event-result-icon" id="event-result-icon"><i class="fas fa-check"></i></div>
+      </div>
+      <h3 class="event-result-title" id="event-result-title">结果标题</h3>
+      <p class="event-result-desc" id="event-result-desc">结果描述...</p>
+      <div class="event-result-effects" id="event-result-effects">
+        <!-- 效果变化动态生成 -->
+      </div>
+      <button class="modal-btn event-result-btn" onclick="window.EventSystem.closeResultModal()">确定</button>
+    </div>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
