@@ -4,10 +4,17 @@
 import { player } from '../core/state.js';
 import { UI } from '../ui/ui.js';
 
-const SCHEDULE_MONTHS = [9, 11, 1, 3, 5, 7];
+// 可触发事件的月份（非假期学期内）
+const SCHEDULE_MONTHS = [9, 10, 11, 12, 1, 3, 4, 5, 6];
+// 假期月份
 const HOLIDAY_MONTHS = [2, 7, 8];
+// 事件类别
 const EVENT_CATEGORIES = ['entertainment', 'academic', 'skill', 'social'];
-const DEFAULT_YEAR_RANGE = [2021, 2023];
+// 默认年份范围（大一到大三：2021年9月 - 2024年6月）
+const DEFAULT_YEAR_RANGE = [2021, 2024];
+// 9月必定触发竞选班委，其他月份50%概率触发
+const SEPTEMBER_LOCKED_EVENT = 'freshman_election';
+const EVENT_TRIGGER_CHANCE = 0.5;
 
 const EVENTS = [
     // ---------------- 大一 ----------------
@@ -19,8 +26,9 @@ const EVENTS = [
         category: 'social',
         months: [9],
         yearRange: DEFAULT_YEAR_RANGE,
-        grades: [1],
+        grades: [1, 2, 3],
         isHoliday: false,
+        repeatable: true,
         options: [
             {
                 id: 'participate',
@@ -91,6 +99,1211 @@ const EVENTS = [
                                 icon: 'fas fa-book-reader',
                                 effects: {},
                                 logType: 'normal'
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    // ================ 大一到大三通用随机事件 ================
+    {
+        id: 'national_day_holiday',
+        name: '国庆小长假',
+        description: '国庆小长假来临，七天长假你打算怎么过？',
+        icon: 'fas fa-flag',
+        category: 'entertainment',
+        months: [10],
+        yearRange: DEFAULT_YEAR_RANGE,
+        grades: [1, 2, 3],
+        isHoliday: false,
+        repeatable: true,
+        options: [
+            {
+                id: 'travel_hard',
+                text: '特种兵旅游',
+                cost: { energy: 10, money: 1500 },
+                costDesc: '消耗10点精力，1500元',
+                outcomes: [
+                    {
+                        weight: 100,
+                        type: 'mix',
+                        subOutcomes: [
+                            {
+                                weight: 60,
+                                name: '玩得尽兴',
+                                desc: '你玩得非常尽兴，虽然累但收获满满！',
+                                icon: 'fas fa-smile-beam',
+                                effects: { health: 2, social: 4 },
+                                logType: 'positive'
+                            },
+                            {
+                                weight: 40,
+                                name: '累坏了',
+                                desc: '到处都是人，累得不行...',
+                                icon: 'fas fa-tired',
+                                effects: { health: -2, social: 2 },
+                                logType: 'negative'
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 'travel_nearby',
+                text: '杭州周边游',
+                cost: { energy: 10, money: 500 },
+                costDesc: '消耗10点精力，500元',
+                outcomes: [
+                    {
+                        weight: 100,
+                        type: 'mix',
+                        subOutcomes: [
+                            {
+                                weight: 40,
+                                name: '身心放松',
+                                desc: '放松身心，度过愉快的一周！',
+                                icon: 'fas fa-spa',
+                                effects: { health: 4 },
+                                logType: 'positive'
+                            },
+                            {
+                                weight: 60,
+                                name: '人山人海',
+                                desc: '全都是人，非常疲惫...',
+                                icon: 'fas fa-users',
+                                effects: { health: -2 },
+                                logType: 'negative'
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 'study_library',
+                text: '在图书馆卷',
+                cost: { energy: 10 },
+                costDesc: '消耗10点精力',
+                outcomes: [
+                    {
+                        weight: 100,
+                        type: 'mix',
+                        subOutcomes: [
+                            {
+                                weight: 50,
+                                name: '卷死他们',
+                                desc: '卷死他们！学习效率爆棚！',
+                                icon: 'fas fa-book',
+                                effects: { knowledge: 4, social: -2 },
+                                logType: 'positive'
+                            },
+                            {
+                                weight: 50,
+                                name: '学不进去',
+                                desc: '完全学不进去，白白浪费假期...',
+                                icon: 'fas fa-frown',
+                                effects: { social: -2, health: -2 },
+                                logType: 'negative'
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        id: 'course_presentation',
+        name: '课程Pre展示',
+        description: '大学里的第一次全英文Presentation，小组里的其他人都看着你，等你来做这个Leader。',
+        icon: 'fas fa-chalkboard-teacher',
+        category: 'academic',
+        months: [11],
+        yearRange: DEFAULT_YEAR_RANGE,
+        grades: [1, 2, 3],
+        isHoliday: false,
+        repeatable: true,
+        options: [
+            {
+                id: 'make_ppt',
+                text: '熬夜做精美PPT（卷王）',
+                cost: { energy: 15 },
+                costDesc: '消耗15点精力',
+                outcomes: [
+                    {
+                        weight: 100,
+                        type: 'mix',
+                        subOutcomes: [
+                            {
+                                weight: 70,
+                                name: '全场最佳',
+                                desc: '全场最佳，老师印象深刻！',
+                                icon: 'fas fa-trophy',
+                                effects: { knowledge: 3, social: 2 },
+                                logType: 'positive'
+                            },
+                            {
+                                weight: 30,
+                                name: '用力过猛',
+                                desc: '被质疑形式大于内容，有点尴尬...',
+                                icon: 'fas fa-exclamation-triangle',
+                                effects: { social: -2, energy: -5 },
+                                logType: 'negative'
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 'buy_ppt',
+                text: '花钱找淘宝美化',
+                cost: { money: 500 },
+                costDesc: '消耗500元',
+                outcomes: [
+                    {
+                        weight: 100,
+                        type: 'success',
+                        subOutcomes: [
+                            {
+                                weight: 100,
+                                name: '轻松混过',
+                                desc: '视觉效果拉满，轻松混过！',
+                                icon: 'fas fa-check-circle',
+                                effects: { skill: 1, energy: 2 },
+                                logType: 'positive'
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 'simple_ppt',
+                text: '随便做个白底黑字（摆烂）',
+                cost: null,
+                costDesc: '无消耗',
+                outcomes: [
+                    {
+                        weight: 100,
+                        type: 'fail',
+                        subOutcomes: [
+                            {
+                                weight: 100,
+                                name: '场面尴尬',
+                                desc: '场面尴尬，老师皱眉...',
+                                icon: 'fas fa-frown',
+                                effects: { social: -2, knowledge: -1 },
+                                logType: 'negative'
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        id: 'cet_exam',
+        name: '四六级考试',
+        description: '四六级考试了，单词好像一点没背？',
+        icon: 'fas fa-spell-check',
+        category: 'academic',
+        months: [12],
+        yearRange: DEFAULT_YEAR_RANGE,
+        grades: [1, 2, 3],
+        isHoliday: false,
+        repeatable: true,
+        options: [
+            {
+                id: 'cram_study',
+                text: '图书馆突击',
+                cost: { energy: 15 },
+                costDesc: '消耗15点精力',
+                outcomes: [
+                    {
+                        weight: 100,
+                        type: 'mix',
+                        subOutcomes: [
+                            {
+                                weight: 70,
+                                name: '临阵磨枪',
+                                desc: '临阵磨枪，不快也光！',
+                                icon: 'fas fa-graduation-cap',
+                                effects: { knowledge: 2 },
+                                logType: 'positive'
+                            },
+                            {
+                                weight: 30,
+                                name: '考试犯困',
+                                desc: '熬夜复习导致考试犯困...',
+                                icon: 'fas fa-bed',
+                                effects: { health: -2 },
+                                logType: 'negative'
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 'trust_luck',
+                text: '车到山前必有路',
+                cost: null,
+                costDesc: '无消耗',
+                outcomes: [
+                    {
+                        weight: 100,
+                        type: 'mix',
+                        subOutcomes: [
+                            {
+                                weight: 40,
+                                name: '运气很好',
+                                desc: '运气很好，随便过！',
+                                icon: 'fas fa-smile',
+                                effects: { health: 2 },
+                                logType: 'positive'
+                            },
+                            {
+                                weight: 60,
+                                name: '完全不会',
+                                desc: '没有复习，完全不会...',
+                                icon: 'fas fa-times-circle',
+                                effects: { knowledge: -2 },
+                                logType: 'negative'
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        id: 'flu_infection',
+        name: '甲流来袭',
+        description: '感冒肆虐，不幸感染甲流，怎么办？',
+        icon: 'fas fa-virus',
+        category: 'social',
+        months: [1],
+        yearRange: DEFAULT_YEAR_RANGE,
+        grades: [1, 2, 3],
+        isHoliday: false,
+        repeatable: true,
+        options: [
+            {
+                id: 'hospital',
+                text: '去校医院打疫苗',
+                cost: { money: 1000 },
+                costDesc: '消耗1000元',
+                outcomes: [
+                    {
+                        weight: 100,
+                        type: 'success',
+                        subOutcomes: [
+                            {
+                                weight: 100,
+                                name: '很快痊愈',
+                                desc: '积极治疗，很快痊愈！',
+                                icon: 'fas fa-heart',
+                                effects: {},
+                                logType: 'positive'
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 'self_medicine',
+                text: '自己购买药品',
+                cost: { money: 200 },
+                costDesc: '消耗200元',
+                outcomes: [
+                    {
+                        weight: 100,
+                        type: 'mix',
+                        subOutcomes: [
+                            {
+                                weight: 60,
+                                name: '逐渐好转',
+                                desc: '身体不错，逐渐好转。',
+                                icon: 'fas fa-pills',
+                                effects: { health: -1 },
+                                logType: 'normal'
+                            },
+                            {
+                                weight: 40,
+                                name: '拖了很久',
+                                desc: '拖了很久才好...',
+                                icon: 'fas fa-frown',
+                                effects: { health: -2, social: -2 },
+                                logType: 'negative'
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 'tough_it_out',
+                text: '直接硬扛',
+                cost: null,
+                costDesc: '无消耗',
+                outcomes: [
+                    {
+                        weight: 100,
+                        type: 'mix',
+                        subOutcomes: [
+                            {
+                                weight: 40,
+                                name: '逐渐好转',
+                                desc: '身体不错，逐渐好转。',
+                                icon: 'fas fa-dumbbell',
+                                effects: { health: -1 },
+                                logType: 'normal'
+                            },
+                            {
+                                weight: 60,
+                                name: '拖了很久',
+                                desc: '拖了很久才好，太难受了...',
+                                icon: 'fas fa-sad-tear',
+                                effects: { health: -2, social: -2 },
+                                logType: 'negative'
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    // ================ 寒假随机事件 ================
+    {
+        id: 'highschool_reunion',
+        name: '高中同学聚会',
+        description: '班长组织了高中同学聚会，听说当年的班花/班草也会去？',
+        icon: 'fas fa-users',
+        category: 'social',
+        months: [2],
+        yearRange: DEFAULT_YEAR_RANGE,
+        grades: [1, 2, 3],
+        isHoliday: true,
+        repeatable: true,
+        options: [
+            {
+                id: 'dress_up',
+                text: '精心打扮，全场焦点（装X）',
+                cost: { money: 800 },
+                costDesc: '消耗800元（置办行头/做发型）',
+                outcomes: [
+                    {
+                        weight: 100,
+                        type: 'mix',
+                        subOutcomes: [
+                            {
+                                weight: 80,
+                                name: '气质折服',
+                                desc: '大家都被你的气质（和名牌）折服！',
+                                icon: 'fas fa-star',
+                                effects: { social: 4 },
+                                logType: 'positive'
+                            },
+                            {
+                                weight: 20,
+                                name: '用力过猛',
+                                desc: '用力过猛，被认为是暴发户...',
+                                icon: 'fas fa-money-bill-wave',
+                                effects: { social: -2, health: -2 },
+                                logType: 'negative'
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 'skip_reunion',
+                text: '这种无效社交，不去也罢（清醒）',
+                cost: null,
+                costDesc: '无消耗',
+                outcomes: [
+                    {
+                        weight: 100,
+                        type: 'mix',
+                        subOutcomes: [
+                            {
+                                weight: 50,
+                                name: '在家躺着真香',
+                                desc: '省钱省心，在家躺着真香~',
+                                icon: 'fas fa-couch',
+                                effects: {},
+                                logType: 'positive'
+                            },
+                            {
+                                weight: 50,
+                                name: '被吐槽高冷',
+                                desc: '被吐槽太高冷，人缘变差...',
+                                icon: 'fas fa-snowflake',
+                                effects: { social: -2 },
+                                logType: 'negative'
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 'low_key',
+                text: '低调出席，默默吃瓜（观察）',
+                cost: { money: 200 },
+                costDesc: '消耗200元（AA餐费）',
+                outcomes: [
+                    {
+                        weight: 100,
+                        type: 'mix',
+                        subOutcomes: [
+                            {
+                                weight: 50,
+                                name: '听到八卦',
+                                desc: '听到了不少八卦，比如谁谁谁分手了~',
+                                icon: 'fas fa-comments',
+                                effects: { social: 2 },
+                                logType: 'positive'
+                            },
+                            {
+                                weight: 50,
+                                name: '话不投机',
+                                desc: '话不投机，白忙活一场...',
+                                icon: 'fas fa-meh',
+                                effects: { energy: -2 },
+                                logType: 'negative'
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        id: 'relatives_interrogation',
+        name: '七大姑八大姨的审问',
+        description: '年夜饭桌上，亲戚们开始了灵魂拷问："有对象了吗？""绩点多少？""以后工资多少？"',
+        icon: 'fas fa-question-circle',
+        category: 'social',
+        months: [2],
+        yearRange: DEFAULT_YEAR_RANGE,
+        grades: [1, 2, 3],
+        isHoliday: true,
+        repeatable: true,
+        options: [
+            {
+                id: 'fight_back',
+                text: '狠狠反击',
+                cost: { knowledge: 2 },
+                costDesc: '消耗2点学识',
+                outcomes: [
+                    {
+                        weight: 100,
+                        type: 'mix',
+                        subOutcomes: [
+                            {
+                                weight: 60,
+                                name: '全场MVP',
+                                desc: '用专业术语把亲戚绕晕，获得全场MVP！',
+                                icon: 'fas fa-trophy',
+                                effects: { health: 5, social: 3 },
+                                logType: 'positive'
+                            },
+                            {
+                                weight: 40,
+                                name: '被识破嘲讽',
+                                desc: '被亲戚识破并嘲讽...',
+                                icon: 'fas fa-frown-open',
+                                effects: { health: -5, social: -2 },
+                                logType: 'negative'
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 'red_envelope',
+                text: '发红包堵嘴（破财）',
+                cost: { money: 500 },
+                costDesc: '消耗500元（给小辈发红包）',
+                outcomes: [
+                    {
+                        weight: 100,
+                        type: 'success',
+                        subOutcomes: [
+                            {
+                                weight: 100,
+                                name: '花钱消灾',
+                                desc: '花钱消灾，耳根清净~',
+                                icon: 'fas fa-gift',
+                                effects: { social: 2 },
+                                logType: 'positive'
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 'eat_silently',
+                text: '埋头干饭，装聋作哑（忍耐）',
+                cost: { health: 2 },
+                costDesc: '消耗2点健康（吃撑了）',
+                outcomes: [
+                    {
+                        weight: 100,
+                        type: 'success',
+                        subOutcomes: [
+                            {
+                                weight: 100,
+                                name: '吃到红烧肉',
+                                desc: '虽然憋屈，但吃到了好吃的红烧肉~',
+                                icon: 'fas fa-drumstick-bite',
+                                effects: { energy: 2 },
+                                logType: 'positive'
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        id: 'holiday_weight_gain',
+        name: '每逢佳节胖三斤',
+        description: '家里的伙食太好了，加上缺乏运动，你发现裤子有点紧。',
+        icon: 'fas fa-weight',
+        category: 'entertainment',
+        months: [2],
+        yearRange: DEFAULT_YEAR_RANGE,
+        grades: [1, 2, 3],
+        isHoliday: true,
+        repeatable: true,
+        options: [
+            {
+                id: 'gym',
+                text: '办张寒假健身卡（自律）',
+                cost: { money: 1000, energy: 10 },
+                costDesc: '消耗1000元，10点精力',
+                outcomes: [
+                    {
+                        weight: 100,
+                        type: 'mix',
+                        subOutcomes: [
+                            {
+                                weight: 60,
+                                name: '练出线条',
+                                desc: '不仅没胖，还练出了线条！',
+                                icon: 'fas fa-dumbbell',
+                                effects: { health: 4, social: 2 },
+                                logType: 'positive'
+                            },
+                            {
+                                weight: 40,
+                                name: '洗澡卡',
+                                desc: '去了两次就没去了，变成洗澡卡...',
+                                icon: 'fas fa-shower',
+                                effects: { money: -500 },
+                                logType: 'negative'
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 'enjoy_food',
+                text: '放飞自我，吃够本（享乐）',
+                cost: { health: 4 },
+                costDesc: '消耗4点健康',
+                outcomes: [
+                    {
+                        weight: 100,
+                        type: 'success',
+                        subOutcomes: [
+                            {
+                                weight: 100,
+                                name: '很开心',
+                                desc: '虽然胖了5斤，但真的很开心啊！',
+                                icon: 'fas fa-smile-beam',
+                                effects: { health: 2, social: 1 },
+                                logType: 'positive'
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 'housework',
+                text: '帮忙做家务消耗热量',
+                cost: { energy: 10 },
+                costDesc: '消耗10点精力',
+                outcomes: [
+                    {
+                        weight: 100,
+                        type: 'success',
+                        subOutcomes: [
+                            {
+                                weight: 100,
+                                name: '爸妈欣慰',
+                                desc: '爸妈觉得你长大了，给了额外红包！',
+                                icon: 'fas fa-home',
+                                effects: { money: 500, social: 2 },
+                                logType: 'positive'
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        id: 'skiing_temptation',
+        name: '滑雪场的诱惑',
+        description: '朋友圈都在晒滑雪，你也心动了，想去体验一把"贴地飞行"。',
+        icon: 'fas fa-skiing',
+        category: 'entertainment',
+        months: [2],
+        yearRange: DEFAULT_YEAR_RANGE,
+        grades: [1, 2, 3],
+        isHoliday: true,
+        repeatable: true,
+        options: [
+            {
+                id: 'north_ski',
+                text: '豪华北方滑雪游（高消）',
+                cost: { money: 4000 },
+                costDesc: '消耗4000元',
+                outcomes: [
+                    {
+                        weight: 100,
+                        type: 'mix',
+                        subOutcomes: [
+                            {
+                                weight: 40,
+                                name: '学会换刃',
+                                desc: '学会了单板换刃，酷毙了，怒发朋友圈！',
+                                icon: 'fas fa-snowboarding',
+                                effects: { skill: 4, health: 3, social: 3 },
+                                logType: 'positive'
+                            },
+                            {
+                                weight: 60,
+                                name: '摔得七荤八素',
+                                desc: '摔得七荤八素，在酒店躺了三天...',
+                                icon: 'fas fa-user-injured',
+                                effects: { health: -5, money: -2000 },
+                                logType: 'negative'
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 'nearby_ski',
+                text: '周边滑雪场一日游（体验）',
+                cost: { money: 800 },
+                costDesc: '消耗800元',
+                outcomes: [
+                    {
+                        weight: 100,
+                        type: 'mix',
+                        subOutcomes: [
+                            {
+                                weight: 50,
+                                name: '玩得开心',
+                                desc: '玩得也很开心！',
+                                icon: 'fas fa-skiing',
+                                effects: { skill: 2 },
+                                logType: 'positive'
+                            },
+                            {
+                                weight: 50,
+                                name: '主要是拍照',
+                                desc: '人很多，主要是去摔跤和拍照的~',
+                                icon: 'fas fa-camera',
+                                effects: { social: 2 },
+                                logType: 'normal'
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 'game_ski',
+                text: '玩滑雪大冒险手游（云滑雪）',
+                cost: { energy: 2 },
+                costDesc: '消耗2点精力',
+                outcomes: [
+                    {
+                        weight: 100,
+                        type: 'success',
+                        subOutcomes: [
+                            {
+                                weight: 100,
+                                name: '云滑雪',
+                                desc: '手指很灵活，钱包很安全~',
+                                icon: 'fas fa-mobile-alt',
+                                effects: {},
+                                logType: 'normal'
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    // ================ 春季学期随机事件 ================
+    {
+        id: 'spring_sleepiness',
+        name: '"春困"来袭',
+        description: '杭州的三月阴雨绵绵，你每天早上都感觉被床封印了，上课总是眼皮打架。',
+        icon: 'fas fa-cloud-rain',
+        category: 'academic',
+        months: [3],
+        yearRange: DEFAULT_YEAR_RANGE,
+        grades: [1, 2, 3],
+        isHoliday: false,
+        repeatable: true,
+        options: [
+            {
+                id: 'coffee',
+                text: '疯狂灌咖啡（氪金续命）',
+                cost: { money: 500 },
+                costDesc: '消耗500元',
+                outcomes: [
+                    {
+                        weight: 100,
+                        type: 'mix',
+                        subOutcomes: [
+                            {
+                                weight: 60,
+                                name: '精神抖擞',
+                                desc: '精神抖擞，听课效率提升！',
+                                icon: 'fas fa-coffee',
+                                effects: { energy: 5, knowledge: 2 },
+                                logType: 'positive'
+                            },
+                            {
+                                weight: 40,
+                                name: '喝胖了',
+                                desc: '不仅没效果，还把自己喝胖了...',
+                                icon: 'fas fa-mug-hot',
+                                effects: { health: -3 },
+                                logType: 'negative'
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 'morning_run',
+                text: '强行早起晨跑（自律）',
+                cost: { energy: 10 },
+                costDesc: '消耗10点精力',
+                outcomes: [
+                    {
+                        weight: 100,
+                        type: 'mix',
+                        subOutcomes: [
+                            {
+                                weight: 60,
+                                name: '身体唤醒',
+                                desc: '虽然累，但身体被唤醒了！',
+                                icon: 'fas fa-running',
+                                effects: { health: 3, energy: 2 },
+                                logType: 'positive'
+                            },
+                            {
+                                weight: 40,
+                                name: '跑完更困',
+                                desc: '跑完更困了，上课睡觉...',
+                                icon: 'fas fa-bed',
+                                effects: { knowledge: -2, energy: -5 },
+                                logType: 'negative'
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 'sleep_in',
+                text: '顺从本能，睡到自然醒（摆烂）',
+                cost: null,
+                costDesc: '无消耗',
+                outcomes: [
+                    {
+                        weight: 100,
+                        type: 'fail',
+                        subOutcomes: [
+                            {
+                                weight: 100,
+                                name: '错过上课',
+                                desc: '错过上课了...',
+                                icon: 'fas fa-bed',
+                                effects: { knowledge: -2 },
+                                logType: 'negative'
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        id: 'tulip_exhibition',
+        name: '太子湾郁金香展',
+        description: '朋友圈被太子湾公园的郁金香刷屏了，室友提议周末一起去踏春拍照。',
+        icon: 'fas fa-seedling',
+        category: 'entertainment',
+        months: [4],
+        yearRange: DEFAULT_YEAR_RANGE,
+        grades: [1, 2, 3],
+        isHoliday: false,
+        repeatable: true,
+        options: [
+            {
+                id: 'photo_trip',
+                text: '盛装出席，打卡拍照',
+                cost: { money: 500, energy: 10 },
+                costDesc: '消耗500元，10点精力',
+                outcomes: [
+                    {
+                        weight: 100,
+                        type: 'mix',
+                        subOutcomes: [
+                            {
+                                weight: 30,
+                                name: '获赞无数',
+                                desc: '拍出了获赞无数的大片！',
+                                icon: 'fas fa-camera-retro',
+                                effects: { social: 5 },
+                                logType: 'positive'
+                            },
+                            {
+                                weight: 70,
+                                name: '人比花多',
+                                desc: '人比花多，只拍到了后脑勺...',
+                                icon: 'fas fa-users',
+                                effects: { energy: -5 },
+                                logType: 'negative'
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 'relax_grass',
+                text: '带上书本去草坪晒太阳',
+                cost: { energy: 5 },
+                costDesc: '消耗5点精力',
+                outcomes: [
+                    {
+                        weight: 100,
+                        type: 'mix',
+                        subOutcomes: [
+                            {
+                                weight: 50,
+                                name: '身心放松',
+                                desc: '环境舒适，身心放松！',
+                                icon: 'fas fa-sun',
+                                effects: { health: 3, energy: 3 },
+                                logType: 'positive'
+                            },
+                            {
+                                weight: 50,
+                                name: '小孩太吵',
+                                desc: '草坪全是游客，小孩吵死了...',
+                                icon: 'fas fa-volume-up',
+                                effects: { health: -3, energy: -3 },
+                                logType: 'negative'
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 'stay_dorm',
+                text: '留在寝室打游戏（宅）',
+                cost: null,
+                costDesc: '无消耗',
+                outcomes: [
+                    {
+                        weight: 100,
+                        type: 'success',
+                        subOutcomes: [
+                            {
+                                weight: 100,
+                                name: '享受独处',
+                                desc: '省钱省力，享受独处时光~',
+                                icon: 'fas fa-gamepad',
+                                effects: { social: -2 },
+                                logType: 'normal'
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        id: 'group_project_hell',
+        name: '小组作业修罗场',
+        description: '某门通识课的小组作业要结课了，组里有个"幽灵组员"全程失联，截止日期就在今晚。',
+        icon: 'fas fa-user-slash',
+        category: 'academic',
+        months: [5],
+        yearRange: DEFAULT_YEAR_RANGE,
+        grades: [1, 2, 3],
+        isHoliday: false,
+        repeatable: true,
+        options: [
+            {
+                id: 'kick_out',
+                text: '踢掉他的名字',
+                cost: { social: 2, energy: 5 },
+                costDesc: '消耗2点社交，5点精力',
+                outcomes: [
+                    {
+                        weight: 100,
+                        type: 'mix',
+                        subOutcomes: [
+                            {
+                                weight: 80,
+                                name: '老师认可',
+                                desc: '把他名字删掉，老师认可你的贡献！',
+                                icon: 'fas fa-check',
+                                effects: { knowledge: 3, skill: 2 },
+                                logType: 'positive'
+                            },
+                            {
+                                weight: 20,
+                                name: '被指责不团结',
+                                desc: '老师反而指责你不够团结...',
+                                icon: 'fas fa-frown',
+                                effects: { knowledge: -2, health: -3 },
+                                logType: 'negative'
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 'carry_all',
+                text: '自己默默扛下所有',
+                cost: { energy: 15, health: 2 },
+                costDesc: '消耗15点精力，2点健康',
+                outcomes: [
+                    {
+                        weight: 100,
+                        type: 'success',
+                        subOutcomes: [
+                            {
+                                weight: 100,
+                                name: '心里憋屈',
+                                desc: '作业完成了，但心里很憋屈...',
+                                icon: 'fas fa-tired',
+                                effects: { knowledge: 2, social: 1 },
+                                logType: 'normal'
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 'submit_anyway',
+                text: '随便糊弄交上去',
+                cost: null,
+                costDesc: '无消耗',
+                outcomes: [
+                    {
+                        weight: 100,
+                        type: 'fail',
+                        subOutcomes: [
+                            {
+                                weight: 100,
+                                name: '全组低分',
+                                desc: '全组低分飘过...',
+                                icon: 'fas fa-frown',
+                                effects: { knowledge: -2 },
+                                logType: 'negative'
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        id: 'flea_market',
+        name: '毕业跳蚤市场',
+        description: '学长学姐们在文化广场摆摊卖旧书、旧电器，这不仅是交易，更是传承。',
+        icon: 'fas fa-store',
+        category: 'social',
+        months: [6],
+        yearRange: DEFAULT_YEAR_RANGE,
+        grades: [1, 2, 3],
+        isHoliday: false,
+        repeatable: true,
+        options: [
+            {
+                id: 'buy_notes',
+                text: '淘一淘考研/专业笔记（捡漏）',
+                cost: { money: 200 },
+                costDesc: '消耗200元',
+                outcomes: [
+                    {
+                        weight: 100,
+                        type: 'mix',
+                        subOutcomes: [
+                            {
+                                weight: 80,
+                                name: '学霸笔记',
+                                desc: '买到了全是干货的学霸笔记！',
+                                icon: 'fas fa-book',
+                                effects: { knowledge: 4 },
+                                logType: 'positive'
+                            },
+                            {
+                                weight: 20,
+                                name: '看不懂',
+                                desc: '买回来发现看不懂...',
+                                icon: 'fas fa-question',
+                                effects: { money: -200 },
+                                logType: 'negative'
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 'buy_equipment',
+                text: '购买二手显示器/椅子（升级装备）',
+                cost: { money: 500 },
+                costDesc: '消耗500元',
+                outcomes: [
+                    {
+                        weight: 100,
+                        type: 'success',
+                        subOutcomes: [
+                            {
+                                weight: 100,
+                                name: '质量提升',
+                                desc: '寝室生活质量直线提升！',
+                                icon: 'fas fa-desktop',
+                                effects: { energy: 2, health: 1 },
+                                logType: 'positive'
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 'chat_seniors',
+                text: '和学长学姐聊天',
+                cost: { energy: 10 },
+                costDesc: '消耗10点精力',
+                outcomes: [
+                    {
+                        weight: 100,
+                        type: 'success',
+                        subOutcomes: [
+                            {
+                                weight: 100,
+                                name: '获得建议',
+                                desc: '获得了宝贵的选课和就业建议！',
+                                icon: 'fas fa-comments',
+                                effects: { skill: 2, knowledge: 1 },
+                                logType: 'positive'
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        id: 'final_exam_library',
+        name: '期末周的图书馆',
+        description: '考试周来了，图书馆早上7点门口就排起了长龙，空气中弥漫着焦虑的味道。',
+        icon: 'fas fa-book-reader',
+        category: 'academic',
+        months: [6],
+        yearRange: DEFAULT_YEAR_RANGE,
+        grades: [1, 2, 3],
+        isHoliday: false,
+        repeatable: true,
+        options: [
+            {
+                id: 'queue_library',
+                text: '加入排队大军（卷）',
+                cost: { energy: 10 },
+                costDesc: '消耗10点精力',
+                outcomes: [
+                    {
+                        weight: 100,
+                        type: 'mix',
+                        subOutcomes: [
+                            {
+                                weight: 70,
+                                name: '效率Max',
+                                desc: '抢到黄金座位，复习效率Max！',
+                                icon: 'fas fa-bolt',
+                                effects: { knowledge: 5, health: -1 },
+                                logType: 'positive'
+                            },
+                            {
+                                weight: 30,
+                                name: '睡着了',
+                                desc: '起太早，在座位上睡着了...',
+                                icon: 'fas fa-bed',
+                                effects: { energy: -5, knowledge: -1 },
+                                logType: 'negative'
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 'study_dorm',
+                text: '在寝室复习（稳）',
+                cost: null,
+                costDesc: '无消耗',
+                outcomes: [
+                    {
+                        weight: 100,
+                        type: 'mix',
+                        subOutcomes: [
+                            {
+                                weight: 60,
+                                name: '能看进去',
+                                desc: '虽然有诱惑，但也能看进去书~',
+                                icon: 'fas fa-book-open',
+                                effects: { knowledge: 1 },
+                                logType: 'positive'
+                            },
+                            {
+                                weight: 40,
+                                name: '被干扰',
+                                desc: '被牛马室友打游戏声音干扰，心态崩了...',
+                                icon: 'fas fa-gamepad',
+                                effects: { knowledge: -2, social: -2 },
+                                logType: 'negative'
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 'all_night',
+                text: '去通宵自习室刷夜（拼）',
+                cost: { health: 5 },
+                costDesc: '消耗5点健康',
+                outcomes: [
+                    {
+                        weight: 100,
+                        type: 'success',
+                        subOutcomes: [
+                            {
+                                weight: 100,
+                                name: '一晚复习一学期',
+                                desc: '一晚上复习了一学期的内容！',
+                                icon: 'fas fa-moon',
+                                effects: { knowledge: 4, energy: -10 },
+                                logType: 'positive'
                             }
                         ]
                     }
@@ -3984,13 +5197,25 @@ export const EventSystem = {
     // 检查并触发事件
     checkEvents() {
         if (player.grade > 3 || player.isGraduated) return false;
-        if (!SCHEDULE_MONTHS.includes(player.month)) return false;
 
         const state = getEventState();
         const monthKey = `${player.year}-${player.month}`;
         if (state.lastTriggeredKey === monthKey) return false;
 
         const isHoliday = HOLIDAY_MONTHS.includes(player.month);
+        
+        // 9月必定触发竞选班委事件
+        if (player.month === 9) {
+            const electionEvent = EVENT_INDEX.get(SEPTEMBER_LOCKED_EVENT);
+            if (electionEvent && this.isEligible(electionEvent, isHoliday)) {
+                this.triggerEvent(electionEvent, monthKey);
+                return true;
+            }
+        }
+        
+        // 其他月份50%概率触发
+        if (Math.random() > EVENT_TRIGGER_CHANCE) return false;
+
         const pool = EVENTS.filter(event => this.isEligible(event, isHoliday));
         if (pool.length === 0) return false;
 
