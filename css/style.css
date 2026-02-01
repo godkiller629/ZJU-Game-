@@ -94,9 +94,11 @@ body.theme-dark {
     overflow: hidden;
 }
 
-/* 响应式 */
-@media (max-width: 1200px) { .game-layout { grid-template-columns: 340px 1fr; } .col-right { display: none; } }
-@media (max-width: 900px) { .game-layout { grid-template-columns: 1fr; overflow-y: auto; display: block; } body { overflow-y: auto; } .container { height: auto; } }
+/* 响应式 - 基础断点 */
+@media (max-width: 1200px) { 
+    .game-layout { grid-template-columns: 340px 1fr; } 
+    .col-right { display: none; } 
+}
 
 /* 面板通用 */
 .panel { 
@@ -204,6 +206,19 @@ body.theme-dark {
 .next-month-btn { flex: 0 0 auto; }
 .tab-pane { display: none; height: 100%; }
 .tab-pane.active { display: block; animation: fadeIn 0.3s ease; }
+
+/* 行动区域标题 */
+.action-section-title {
+    margin-bottom: 20px;
+    font-size: 18px;
+    border-bottom: 2px solid var(--border-1);
+    padding-bottom: 10px;
+    color: var(--text-0);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
 
 /* 行动按钮 */
 /* 强制所有行动按钮高度一致，避免假期或特殊事件撑高布局 */
@@ -1114,4 +1129,744 @@ body.theme-dark {
 
 .theme-dark .event-result-btn:hover {
     background: #0050aa;
+}
+
+/* ========================================
+   移动端适配样式
+   ======================================== */
+
+/* 平板适配 (900px以下) */
+@media (max-width: 900px) {
+    body {
+        padding: 10px;
+        overflow-y: auto;
+    }
+    
+    .container {
+        height: auto;
+        min-height: 100vh;
+    }
+    
+    .game-layout {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        overflow: visible;
+    }
+    
+    .col-left, .col-center, .col-right {
+        grid-column: auto;
+        width: 100%;
+        height: auto;
+        max-height: none;
+    }
+    
+    .col-left.panel {
+        max-height: 350px;
+    }
+    
+    .col-right.panel {
+        max-height: 300px;
+        display: flex;
+    }
+    
+    .col-right {
+        padding-bottom: 0;
+    }
+    
+    .center-content-area {
+        min-height: 400px;
+    }
+    
+    /* 行动按钮：平板上保持3列 */
+    .actions-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* 手机适配 (600px以下) */
+@media (max-width: 600px) {
+    body {
+        padding: 8px;
+    }
+    
+    /* 头部优化 */
+    .header {
+        flex-direction: column;
+        padding: 12px 15px;
+        gap: 10px;
+        text-align: center;
+    }
+    
+    .header h1 {
+        font-size: 18px;
+    }
+    
+    .header-right {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .dev-credits {
+        text-align: center !important;
+        font-size: 11px;
+    }
+    
+    .time-display {
+        font-size: 14px;
+        padding: 6px 12px;
+    }
+    
+    /* Tab按钮优化 */
+    .tab-container {
+        gap: 6px;
+        padding: 5px;
+    }
+    
+    .tab-btn {
+        padding: 10px 8px;
+        font-size: 12px;
+        gap: 4px;
+    }
+    
+    .tab-btn i {
+        font-size: 14px;
+    }
+    
+    /* 隐藏Tab文字，只显示图标 */
+    .tab-btn span {
+        display: none;
+    }
+    
+    /* 面板标题优化 */
+    .panel-header {
+        padding: 10px 12px;
+    }
+    
+    .panel-title {
+        font-size: 14px;
+        gap: 6px;
+    }
+    
+    .panel-content {
+        padding: 10px;
+    }
+    
+    /* 左栏学生档案 */
+    .col-left.panel {
+        max-height: 280px;
+    }
+    
+    .stats-grid {
+        gap: 8px;
+    }
+    
+    .stat-item {
+        padding: 8px 10px;
+    }
+    
+    .stat-name {
+        font-size: 12px;
+    }
+    
+    .stat-value {
+        font-size: 16px;
+    }
+    
+    .innate-stats-container {
+        gap: 6px;
+        padding-top: 10px;
+        margin-top: 8px;
+    }
+    
+    .innate-stat {
+        padding: 6px;
+        font-size: 11px;
+    }
+    
+    /* 中间区域 - 本月行动 */
+    .center-content-area {
+        padding: 12px;
+        min-height: 350px;
+    }
+    
+    .action-section-title {
+        font-size: 15px;
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+    }
+    
+    /* 进度条优化 */
+    .phase-indicator {
+        padding: 8px;
+        margin-bottom: 12px;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 5px;
+    }
+    
+    .phase-step {
+        font-size: 11px;
+        flex: 0 0 auto;
+        padding: 4px 8px;
+    }
+    
+    .phase-arrow {
+        font-size: 10px;
+    }
+    
+    /* 行动按钮：手机上2列 */
+    .actions-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        padding-bottom: 10px;
+    }
+    
+    .action-btn {
+        aspect-ratio: 1.4;
+        padding: 8px;
+        gap: 3px;
+        border-radius: 8px;
+    }
+    
+    .action-btn i {
+        font-size: 20px;
+        margin-bottom: 2px;
+    }
+    
+    .action-btn span {
+        font-size: 12px;
+    }
+    
+    .action-cost {
+        font-size: 10px;
+        padding: 2px 5px;
+    }
+    
+    .action-tag {
+        font-size: 9px;
+        padding: 1px 4px;
+        top: 3px;
+        right: 3px;
+    }
+    
+    /* 下个月按钮 */
+    .next-month-btn {
+        padding: 12px;
+        font-size: 14px;
+        margin-top: 12px;
+    }
+    
+    /* 右栏日志 */
+    .col-right.panel {
+        max-height: 250px;
+    }
+    
+    .skills-container {
+        max-height: 80px;
+    }
+    
+    .skill-item {
+        padding: 8px;
+        gap: 8px;
+    }
+    
+    .skill-icon {
+        font-size: 14px;
+    }
+    
+    .skill-name {
+        font-size: 11px;
+    }
+    
+    .log-entry {
+        padding: 8px 10px;
+        font-size: 12px;
+        margin-bottom: 8px;
+    }
+    
+    .log-time {
+        font-size: 10px;
+    }
+    
+    /* ===== 弹窗移动端优化 ===== */
+    .modal-overlay {
+        padding: 15px;
+        align-items: flex-start;
+        padding-top: 5vh;
+    }
+    
+    .modal-content {
+        padding: 20px;
+        max-width: 100%;
+        max-height: 85vh;
+        border-radius: 12px;
+    }
+    
+    .modal-btn {
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+    
+    .modal-btn-cancel {
+        padding: 10px 20px;
+        font-size: 14px;
+        margin-left: 8px;
+    }
+    
+    /* 学部选择弹窗 */
+    .major-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-top: 15px;
+    }
+    
+    .major-card {
+        padding: 15px 10px;
+        min-height: 120px;
+    }
+    
+    .major-icon {
+        font-size: 28px;
+        margin-bottom: 8px;
+    }
+    
+    .major-title {
+        font-size: 14px;
+        margin-bottom: 5px;
+    }
+    
+    .major-req {
+        font-size: 11px;
+    }
+    
+    .major-desc {
+        font-size: 11px;
+        display: none; /* 手机上隐藏描述 */
+    }
+    
+    /* Roll结果弹窗 */
+    .profile-content {
+        padding: 20px !important;
+    }
+    
+    .profile-title {
+        font-size: 20px !important;
+        margin-bottom: 15px !important;
+    }
+    
+    .roll-result-container {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin: 15px 0;
+    }
+    
+    .roll-card {
+        padding: 12px;
+    }
+    
+    .roll-title {
+        font-size: 12px;
+    }
+    
+    .roll-value {
+        font-size: 18px;
+    }
+    
+    .roll-desc {
+        font-size: 11px;
+    }
+    
+    .roll-family-section {
+        padding: 12px !important;
+        flex-direction: column;
+        gap: 12px;
+        text-align: center !important;
+    }
+    
+    .roll-family-section > div {
+        justify-content: center !important;
+    }
+    
+    .roll-family-section > div:last-child {
+        text-align: center !important;
+    }
+    
+    /* 录取通知书 */
+    .admission-letter {
+        padding: 30px 20px;
+    }
+    
+    .zju-logo {
+        font-size: 50px;
+        margin-bottom: 20px;
+    }
+    
+    .admission-highlight {
+        font-size: 24px;
+        margin: 15px 0;
+    }
+    
+    .admission-text {
+        font-size: 16px;
+        line-height: 1.6;
+        margin-bottom: 25px;
+    }
+    
+    .star-highlight {
+        font-size: 18px;
+    }
+    
+    /* 新学期弹窗 */
+    .semester-content {
+        max-width: 100%;
+    }
+    
+    .semester-header {
+        padding: 15px;
+        font-size: 18px;
+    }
+    
+    .semester-body {
+        padding: 20px;
+        gap: 15px;
+    }
+    
+    .semester-info-item {
+        padding: 12px 15px;
+    }
+    
+    .info-label {
+        font-size: 14px;
+    }
+    
+    .info-value {
+        font-size: 18px;
+    }
+    
+    .semester-btn {
+        width: 85%;
+        padding: 12px;
+        font-size: 16px;
+        margin-bottom: 20px;
+    }
+    
+    /* 事件弹窗 */
+    .event-content {
+        max-width: 100%;
+    }
+    
+    .event-header {
+        padding: 25px 20px 10px;
+    }
+    
+    .event-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 26px;
+    }
+    
+    .event-icon::before {
+        inset: -5px;
+    }
+    
+    .event-title {
+        font-size: 18px;
+    }
+    
+    .event-body {
+        padding: 10px 20px 20px;
+    }
+    
+    .event-description {
+        font-size: 14px;
+        line-height: 1.6;
+    }
+    
+    .event-options {
+        padding: 0 20px 25px;
+        gap: 10px;
+    }
+    
+    .event-option-btn {
+        padding: 12px 15px;
+        font-size: 14px;
+    }
+    
+    .event-option-cost {
+        font-size: 11px;
+        padding: 3px 8px;
+    }
+    
+    /* 事件结果弹窗 */
+    .event-result-content {
+        max-width: 100%;
+    }
+    
+    .event-result-header {
+        padding: 25px 15px 15px;
+    }
+    
+    .event-result-icon {
+        width: 65px;
+        height: 65px;
+        font-size: 28px;
+    }
+    
+    .event-result-title {
+        font-size: 17px;
+        margin: 0 15px 8px;
+    }
+    
+    .event-result-desc {
+        font-size: 13px;
+        margin: 0 20px 15px;
+        padding: 10px;
+    }
+    
+    .event-result-effects {
+        padding: 0 20px 20px;
+        gap: 6px;
+    }
+    
+    .event-effect-item {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+    
+    .event-result-btn {
+        width: calc(100% - 40px);
+        margin: 0 20px 20px;
+        padding: 12px;
+        font-size: 15px;
+    }
+    
+    /* 结局弹窗 */
+    #ending-modal .modal-content {
+        max-width: 100%;
+        padding: 25px 20px;
+    }
+    
+    #ending-modal .ending-title {
+        font-size: 18px;
+    }
+    
+    #ending-modal .ending-text {
+        font-size: 14px;
+        line-height: 1.7;
+    }
+    
+    #ending-modal .ending-stats {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+    
+    #ending-modal .ending-stat {
+        padding: 8px 10px;
+        font-size: 12px;
+    }
+    
+    /* 消息提示弹窗 */
+    #message-modal .modal-content,
+    #confirm-modal .modal-content {
+        max-width: 100%;
+        padding: 20px;
+    }
+    
+    #confirm-modal h3,
+    #message-modal h3 {
+        font-size: 16px;
+    }
+    
+    #confirm-content,
+    #msg-content {
+        font-size: 14px !important;
+    }
+    
+    /* 成就Toast */
+    .achievement-toast {
+        top: 15px;
+        right: 15px;
+        left: 15px;
+        max-width: none;
+        padding: 15px 18px;
+        gap: 12px;
+    }
+    
+    /* 系统设置页 */
+    .system-section-title {
+        font-size: 14px;
+    }
+    
+    .system-card {
+        padding: 12px;
+    }
+    
+    .system-row-title {
+        font-size: 14px;
+    }
+    
+    .system-row-desc {
+        font-size: 11px;
+    }
+    
+    .switch {
+        width: 44px;
+        height: 24px;
+    }
+    
+    .slider:before {
+        height: 18px;
+        width: 18px;
+    }
+    
+    .switch input:checked + .slider:before {
+        transform: translate(20px, -50%);
+    }
+    
+    /* 存档卡片 */
+    .save-slot-card {
+        padding: 12px;
+    }
+    
+    .slot-header {
+        font-size: 12px;
+    }
+    
+    .save-summary {
+        font-size: 14px;
+    }
+    
+    .slot-btn {
+        padding: 6px;
+        font-size: 11px;
+    }
+}
+
+/* 超小屏幕适配 (400px以下) */
+@media (max-width: 400px) {
+    body {
+        padding: 5px;
+    }
+    
+    .header h1 {
+        font-size: 16px;
+    }
+    
+    .tab-btn {
+        padding: 8px 6px;
+    }
+    
+    .tab-btn i {
+        font-size: 16px;
+    }
+    
+    /* 学部选择：单列 */
+    .major-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .major-card {
+        min-height: 80px;
+        flex-direction: row;
+        justify-content: flex-start;
+        gap: 15px;
+        padding: 12px 15px;
+    }
+    
+    .major-icon {
+        margin-bottom: 0;
+        font-size: 24px;
+    }
+    
+    .major-card > div {
+        text-align: left;
+    }
+    
+    /* Roll结果：单列 */
+    .roll-result-container {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+    
+    .roll-card {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 15px;
+    }
+    
+    .roll-card .roll-title {
+        margin-bottom: 0;
+    }
+    
+    .roll-card .roll-value {
+        font-size: 20px;
+    }
+    
+    .roll-card .roll-desc {
+        display: none;
+    }
+    
+    /* 结局统计：单列 */
+    #ending-modal .ending-stats {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* 横屏手机优化 */
+@media (max-height: 500px) and (orientation: landscape) {
+    .modal-overlay {
+        padding: 10px;
+        padding-top: 10px;
+        align-items: center;
+    }
+    
+    .modal-content {
+        max-height: 90vh;
+        padding: 15px;
+    }
+    
+    .event-header {
+        padding: 15px 20px 5px;
+    }
+    
+    .event-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 22px;
+        margin-bottom: 8px;
+    }
+    
+    .event-body {
+        padding: 5px 20px 15px;
+    }
+    
+    .roll-result-container {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        margin: 10px 0;
+    }
+    
+    .admission-letter {
+        padding: 20px;
+    }
+    
+    .zju-logo {
+        font-size: 40px;
+        margin-bottom: 10px;
+    }
+    
+    .admission-highlight {
+        font-size: 20px;
+        margin: 10px 0;
+    }
+    
+    .admission-text {
+        font-size: 14px;
+        margin-bottom: 15px;
+    }
 }
