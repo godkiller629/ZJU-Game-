@@ -1201,6 +1201,7 @@ body.theme-dark {
     body[data-active-tab="home"] .game-layout {
         display: flex;
         flex-direction: column;
+        gap: 6px;
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
         padding-bottom: 60px;
@@ -1212,12 +1213,14 @@ body.theme-dark {
         overflow: visible;
         flex-shrink: 0;
         border-top: 1px solid var(--border-0);
+        order: 2;
     }
     body[data-active-tab="home"] .col-center {
         height: auto;
         max-height: none;
         overflow: visible;
         flex-shrink: 0;
+        order: 1;
     }
     body[data-active-tab="home"] .center-content-area {
         overflow: visible;
@@ -1291,6 +1294,37 @@ body.theme-dark {
         border-top-color: var(--border-0);
     }
 
+    /* 首页档案栏紧凑化：行动在上，档案在下 */
+    body[data-active-tab="home"] .col-left .panel-header {
+        padding: 8px 12px;
+    }
+    body[data-active-tab="home"] .col-left .panel-title {
+        font-size: 14px;
+        gap: 6px;
+    }
+    body[data-active-tab="home"] .col-left .panel-content {
+        padding: 8px 10px;
+    }
+    body[data-active-tab="home"] .col-left .stats-grid {
+        gap: 6px;
+        margin-bottom: 6px;
+    }
+    body[data-active-tab="home"] .col-left .stat-item {
+        padding: 7px 8px !important;
+        margin-bottom: 4px !important;
+        border-left-width: 3px !important;
+    }
+    body[data-active-tab="home"] .col-left .stat-name {
+        font-size: 12px;
+        gap: 6px;
+    }
+    body[data-active-tab="home"] .col-left .stat-value {
+        font-size: 15px;
+    }
+    body[data-active-tab="home"] .col-left .stat-progress {
+        height: 4px !important;
+    }
+
     /* 内容区撑满（减去header+底栏高度） */
     .center-content-area {
         flex: 1;
@@ -1318,13 +1352,13 @@ body.theme-dark {
     /* --- 首页行动区：紧凑布局，不需要滚动 --- */
     .action-section-title {
         font-size: 15px;
-        margin-bottom: 8px;
+        margin-bottom: 6px;
         padding-bottom: 6px;
         border-bottom-width: 1px;
     }
     .phase-indicator {
-        margin-bottom: 8px;
-        padding: 6px 8px;
+        margin-bottom: 6px;
+        padding: 5px 8px;
         border-radius: 8px;
     }
     .phase-step { font-size: 11px; }
