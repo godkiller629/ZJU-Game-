@@ -14,16 +14,20 @@ export const UI = {
     },
 
     switchTab(tabId) {
+        // 更新按钮状态
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.classList.remove('active');
             if(btn.dataset.tab === tabId) btn.classList.add('active');
         });
+        // 切换 tab-pane（stats/log 是移动端虚拟标签，没有对应 pane）
         document.querySelectorAll('.tab-pane').forEach(pane => {
             pane.classList.remove('active');
         });
-        const targetPane = document.getElementById(`tab-${tabId}`);
-        if (targetPane) targetPane.classList.add('active');
-        // 记录当前标签页，供移动端布局做显隐控制
+        if (tabId !== 'stats' && tabId !== 'log') {
+            const targetPane = document.getElementById(`tab-${tabId}`);
+            if (targetPane) targetPane.classList.add('active');
+        }
+        // 记录当前标签页，供移动端 CSS 做页面级显隐
         document.body.dataset.activeTab = tabId;
         if (tabId === 'system') SaveSystem.refreshUI();
     },
