@@ -1490,6 +1490,33 @@ body.theme-dark {
     /* 成就Toast */
     .achievement-toast { top: 10px; left: 12px; right: 12px; max-width: none; padding: 14px 16px; gap: 10px; }
 
+    /* 系统页可见性修复：压缩间距 + 底部留白避免被导航挡住 */
+    #tab-system {
+        overflow-y: auto;
+        padding-bottom: 86px;
+    }
+    .system-page {
+        gap: 10px;
+        padding-bottom: 10px;
+    }
+    .system-section { gap: 8px; }
+    .system-card { padding: 10px; }
+    .system-row-desc { font-size: 11px; }
+    .system-reset-btn {
+        width: 100%;
+        margin-top: 0;
+        margin-left: 0;
+        padding: 10px 12px;
+        font-size: 14px;
+    }
+
+    /* 档案区重排收尾：学分卡+6项属性整齐紧凑 */
+    body[data-active-tab="home"] .col-left #stats > div:last-child {
+        grid-column: auto;
+        margin-top: 0 !important;
+        gap: 0 !important;
+    }
+
     /* Tooltip在手机上不需要 */
     .tooltip .tooltip-text { display: none !important; }
 }

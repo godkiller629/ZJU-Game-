@@ -75,7 +75,8 @@ export const UI = {
             { key: 'skill', name: '技能', color: 'var(--primary-color)', icon: 'fas fa-tools' },
             { key: 'social', name: '社交', color: 'var(--primary-color)', icon: 'fas fa-users' },
             { key: 'health', name: '健康', color: hColor, icon: 'fas fa-heart' },
-            { key: 'energy', name: '精力', color: 'var(--primary-color)', icon: 'fas fa-bolt' }
+            { key: 'energy', name: '精力', color: 'var(--primary-color)', icon: 'fas fa-bolt' },
+            { key: 'money', name: '金钱', color: 'var(--primary-color)', icon: 'fas fa-coins' }
         ];
 
         let html = '';
@@ -93,9 +94,13 @@ export const UI = {
             html += `
             <div class="stat-item" style="border-left: 3px solid var(--border-0); margin-bottom:8px; padding:10px;">
                 <div style="font-size:13px; color:var(--text-0); font-weight:bold; margin-bottom:5px;"><i class="fas fa-file-alt"></i> 毕设进度</div>
-                <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--text-1);">
+                <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--text-1); margin-bottom:2px;">
                     <span>当前状态</span>
                     <span style="color:${color}; font-weight:bold;">${thesisStatus}</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--text-1);">
+                    <span>当前GPA</span>
+                    <span style="color:var(--primary-color); font-weight:bold;">${player.gpa.toFixed(2)}</span>
                 </div>
                 <div class="stat-progress" style="background:var(--border-1); height:6px; border-radius:3px; overflow:hidden; margin-top:5px;">
                     <div style="width:${Math.min(player.thesis, 100)}%; background:${color}; height:100%;"></div>
@@ -115,38 +120,31 @@ export const UI = {
                     <span>已修 / 总需</span>
                     <span style="color:var(--primary-color); font-weight:bold;">${player.totalCreditsEarned} / ${player.targetCredits}</span>
                 </div>
+                <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--text-1); margin-top:2px;">
+                    <span>当前GPA</span>
+                    <span style="color:var(--primary-color); font-weight:bold;">${player.gpa.toFixed(2)}</span>
+                </div>
             </div>
             `;
         }
 
         items.forEach(item => {
-            const val = player[item.key];
+            const val = item.key === 'money' ? `¥${player.money}` : player[item.key];
             const max = item.key === 'energy' ? GAME_PARAMS.MAX_ENERGY : GAME_PARAMS.MAX_STAT;
-            const pct = (val / max) * 100;
+            const pct = item.key === 'money' ? 0 : (player[item.key] / max) * 100;
             html += `
             <div class="stat-item" style="border-left-color: ${item.color}; margin-bottom: 8px; padding: 10px;">
                 <div class="stat-header" style="display:flex; justify-content:space-between; margin-bottom:4px;">
                     <div class="stat-name"><i class="${item.icon}" style="width:20px;"></i> ${item.name}</div>
                     <div class="stat-value" style="color:${item.color}; font-weight:bold;">${val}</div>
                 </div>
+                ${item.key === 'money' ? '' : `
                 <div class="stat-progress" style="background:#eee; height:6px; border-radius:3px; overflow:hidden;">
                     <div style="width:${pct}%; background:${item.color}; height:100%;"></div>
                 </div>
+                `}
             </div>`;
         });
-
-        html += `
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px;">
-                <div class="stat-item" style="border-left: 3px solid var(--border-0); font-size:13px; padding:10px;">
-                    <div><i class="fas fa-coins"></i> 金钱</div>
-                    <div style="font-weight:bold;">¥${player.money}</div>
-                </div>
-                <div class="stat-item" style="border-left: 3px solid var(--border-0); font-size:13px; padding:10px;">
-                    <div><i class="fas fa-graduation-cap"></i> GPA</div>
-                    <div style="font-weight:bold;">${player.gpa.toFixed(2)}</div>
-                </div>
-            </div>
-        `;
         statsGrid.innerHTML = html;
     },
 
