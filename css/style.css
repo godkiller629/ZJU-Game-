@@ -1178,6 +1178,7 @@ body.theme-dark {
         display: block;
         overflow: hidden;
         min-height: 0;
+        background: transparent; /* 确保背景透明，避免白色带 */
     }
     /* 默认全部隐藏 */
     .col-left, .col-center, .col-right {
@@ -1204,7 +1205,8 @@ body.theme-dark {
         gap: 6px;
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
-        padding-bottom: 60px;
+        padding-bottom: 0; /* 移除game-layout的padding-bottom，避免白色带 */
+        background: transparent; /* 确保背景透明，不产生白色带 */
     }
     body[data-active-tab="home"] .col-left {
         display: block !important;
@@ -1223,10 +1225,11 @@ body.theme-dark {
         flex: 1;
         min-height: 0;
         order: 2;
+        background: transparent; /* 确保背景透明 */
     }
     body[data-active-tab="home"] .center-content-area {
         overflow: auto;
-        padding-bottom: 72px;
+        padding-bottom: 80px; /* 增加padding-bottom，确保"进入下个月"按钮不被遮挡 */
     }
 
     /* 面板样式：去圆角，全屏感 */
@@ -1244,6 +1247,7 @@ body.theme-dark {
         grid-column: auto;
         max-height: none;
         gap: 0;
+        background: transparent; /* 确保背景透明，避免白色带 */
     }
 
     /* 隐藏桌面端顶部Tab */
@@ -1263,6 +1267,8 @@ body.theme-dark {
         padding: 4px 0;
         padding-bottom: env(safe-area-inset-bottom, 4px);
         gap: 0;
+        height: auto; /* 确保高度自适应 */
+        min-height: 50px; /* 设置最小高度，确保按钮可见 */
     }
     .mobile-bottom-nav .tab-btn {
         flex: 1;
@@ -1369,9 +1375,10 @@ body.theme-dark {
         border-radius: 0;
         box-shadow: none;
         padding: 12px 14px;
-        padding-bottom: 70px; /* 为底部导航栏留空 */
+        padding-bottom: 80px; /* 增加padding-bottom，确保底部内容不被遮挡 */
         overflow-y: auto;
         min-height: 0;
+        background: var(--surface-0); /* 确保背景色一致 */
     }
 
     /* col-left / col-right 全屏滚动 */
@@ -1426,7 +1433,10 @@ body.theme-dark {
         padding: 12px;
         font-size: 14px;
         margin-top: 10px;
+        margin-bottom: 0; /* 移除底部margin，避免产生间隙 */
         border-radius: 10px;
+        position: relative; /* 确保按钮位置正确 */
+        z-index: 1; /* 确保按钮在导航栏之上 */
     }
 
     /* --- 弹窗通用 --- */
