@@ -1137,7 +1137,6 @@ body.theme-dark {
    ======================================== */
 .mobile-tab { display: none; }
 .mobile-bottom-nav { display: none; }
-.mobile-stats-bar { display: none; }
 
 /* ========================================
    移动端完整重构 - App风格单屏布局
@@ -1192,10 +1191,38 @@ body.theme-dark {
 
     /* 根据 body[data-active-tab] 只显示对应的列 */
     body[data-active-tab="home"] .col-center,
+    body[data-active-tab="project"] .col-center,
     body[data-active-tab="shop"] .col-center,
     body[data-active-tab="system"] .col-center { display: flex !important; flex-direction: column; }
     body[data-active-tab="stats"] .col-left { display: flex !important; }
     body[data-active-tab="log"] .col-right { display: flex !important; }
+
+    /* 首页时：档案栏也显示，排在行动区下面 */
+    body[data-active-tab="home"] .game-layout {
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 60px;
+    }
+    body[data-active-tab="home"] .col-left {
+        display: block !important;
+        height: auto;
+        max-height: none;
+        overflow: visible;
+        flex-shrink: 0;
+        border-top: 1px solid var(--border-0);
+    }
+    body[data-active-tab="home"] .col-center {
+        height: auto;
+        max-height: none;
+        overflow: visible;
+        flex-shrink: 0;
+    }
+    body[data-active-tab="home"] .center-content-area {
+        overflow: visible;
+        padding-bottom: 14px;
+    }
 
     /* 面板样式：去圆角，全屏感 */
     .panel {
@@ -1263,32 +1290,6 @@ body.theme-dark {
         background: var(--surface-0);
         border-top-color: var(--border-0);
     }
-
-    /* === 移动端首页状态摘要条 === */
-    .mobile-stats-bar {
-        display: flex !important;
-        gap: 4px;
-        padding: 8px 6px;
-        margin-bottom: 8px;
-        background: var(--surface-1);
-        border-radius: 10px;
-        border: 1px solid var(--border-0);
-        overflow-x: auto;
-        flex-shrink: 0;
-    }
-    .mobile-stats-bar .m-stat {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 2px;
-        font-size: 10px;
-        color: var(--primary-color);
-        min-width: 0;
-        white-space: nowrap;
-    }
-    .mobile-stats-bar .m-stat i { font-size: 12px; opacity: 0.7; }
-    .mobile-stats-bar .m-stat b { font-size: 13px; font-weight: 800; }
 
     /* 内容区撑满（减去header+底栏高度） */
     .center-content-area {
