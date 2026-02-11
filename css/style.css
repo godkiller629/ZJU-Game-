@@ -1208,23 +1208,25 @@ body.theme-dark {
     }
     body[data-active-tab="home"] .col-left {
         display: block !important;
-        height: auto;
-        max-height: none;
-        overflow: visible;
+        height: auto !important;
+        max-height: 34vh;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
         flex-shrink: 0;
         border-top: 1px solid var(--border-0);
-        order: 2;
-    }
-    body[data-active-tab="home"] .col-center {
-        height: auto;
-        max-height: none;
-        overflow: visible;
-        flex-shrink: 0;
         order: 1;
     }
-    body[data-active-tab="home"] .center-content-area {
+    body[data-active-tab="home"] .col-center {
+        height: auto !important;
+        max-height: none;
         overflow: visible;
-        padding-bottom: 14px;
+        flex: 1;
+        min-height: 0;
+        order: 2;
+    }
+    body[data-active-tab="home"] .center-content-area {
+        overflow: auto;
+        padding-bottom: 72px;
     }
 
     /* 面板样式：去圆角，全屏感 */
@@ -1355,6 +1357,10 @@ body.theme-dark {
     }
     body[data-active-tab="home"] .col-left .innate-stat-value {
         font-size: 11px;
+    }
+    body[data-active-tab="home"] .col-left #major-badge {
+        font-size: 11px !important;
+        padding: 1px 6px !important;
     }
 
     /* 内容区撑满（减去header+底栏高度） */
