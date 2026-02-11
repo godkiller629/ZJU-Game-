@@ -5165,7 +5165,173 @@ const EVENTS = [
                 ]
             }
         ]
-    }
+    },
+    // ================ 【全校通用】浙大特色 ================ 
+     { 
+         id: 'zju_hike', name: '校园毅行', icon: 'fas fa-hiking', category: 'entertainment', 
+         description: '一年一度的毅行，从紫金港走到玉泉，是对体力的极致考验。', 
+         months: [10, 11], grades: [1, 2, 3], isHoliday: false, 
+         options: [ 
+             { id: 'full', text: '走完全程', cost: { energy: 30 }, outcomes: [ 
+                 { weight: 80, type: 'success', subOutcomes: [{ weight: 100, name: '毅行奖牌', desc: '晒爆朋友圈！', effects: { health: 5, social: 3, energy: -10 }, logType: 'positive' }] }, 
+                 { weight: 20, type: 'fail', subOutcomes: [{ weight: 100, name: '脚磨泡', desc: '第二天废了。', effects: { health: -5, knowledge: -2 }, logType: 'negative' }] } 
+             ]}, 
+             { id: 'half', text: '半程打卡', cost: { energy: 15 }, outcomes: [{ weight: 100, type: 'success', subOutcomes: [{ weight: 100, name: '量力而行', desc: '体验氛围不错。', effects: { health: 2, social: 1 }, logType: 'normal' }] }] } 
+         ] 
+     }, 
+     { 
+         id: 'course_crash', name: '选课战争', icon: 'fas fa-mouse-pointer', category: 'academic', 
+         description: '教务系统崩了！那门“事少给分高”的水课只剩最后3个名额。', 
+         months: [1, 6], grades: [1, 2], isHoliday: false, 
+         options: [ 
+             { id: 'f5', text: '疯狂刷新', cost: { energy: 5 }, outcomes: [ 
+                 { weight: 30, type: 'success', subOutcomes: [{ weight: 100, name: '抢到了', desc: '单身手速立功！', effects: { social: 2 }, logType: 'positive' }] }, 
+                 { weight: 70, type: 'fail', subOutcomes: [{ weight: 100, name: '502 Bad Gateway', desc: '课没了...', effects: { energy: -5 }, logType: 'negative' }] } 
+             ]}, 
+             { id: 'hard', text: '捡漏硬课', cost: null, outcomes: [{ weight: 100, type: 'mix', subOutcomes: [{ weight: 100, name: '硬核', desc: '虽然累但能学到东西。', effects: { knowledge: 4, energy: -2 }, logType: 'normal' }] }] } 
+         ] 
+     }, 
+ 
+     // ================ 【工学部】金工/结构 ================ 
+     { 
+         id: 'metal_hammer', name: '金工实习', icon: 'fas fa-hammer', category: 'skill', 
+         description: '工科生的浪漫：在车间搓一把属于自己的金属小锤子。', 
+         months: [10, 4], grades: [2], majorNames: ['机械工程学院', '能源工程学院', '电气工程学院', '航空航天学院'], 
+         options: [ 
+             { id: 'craft', text: '精细打磨', cost: { energy: 20 }, outcomes: [ 
+                 { weight: 70, type: 'success', subOutcomes: [{ weight: 100, name: '传世之作', desc: '光滑如镜！', effects: { skill: 6, health: -2 }, logType: 'positive' }] }, 
+                 { weight: 30, type: 'fail', subOutcomes: [{ weight: 100, name: '歪了', desc: '尺寸磨过头了...', effects: { skill: 2 }, logType: 'negative' }] } 
+             ]}, 
+             { id: 'pass', text: '及格万岁', cost: { energy: 10 }, outcomes: [{ weight: 100, type: 'success', subOutcomes: [{ weight: 100, name: '完工', desc: '是个锤子就行。', effects: { skill: 2 }, logType: 'normal' }] }] } 
+         ] 
+     }, 
+     { 
+         id: 'bridge_game', name: '结构设计大赛', icon: 'fas fa-archway', category: 'skill', 
+         description: '用纸张搭建桥梁模型，比比谁的承重最大。', 
+         months: [4, 5], grades: [2, 3], majorNames: ['建筑工程学院', '土木工程学系'], 
+         options: [ 
+             { id: 'build', text: '通宵制作', cost: { energy: 15, skill: 50 }, outcomes: [ 
+                 { weight: 60, type: 'success', subOutcomes: [{ weight: 100, name: '定海神针', desc: '承重第一！', effects: { skill: 5, social: 2 }, logType: 'positive' }] }, 
+                 { weight: 40, type: 'fail', subOutcomes: [{ weight: 100, name: '加载崩塌', desc: '咔嚓一声塌了。', effects: { energy: -10 }, logType: 'negative' }] } 
+             ]}, 
+             { id: 'calc', text: '理论计算', cost: { energy: 5 }, outcomes: [{ weight: 100, type: 'success', subOutcomes: [{ weight: 100, name: '数据支持', desc: '算出了最优解。', effects: { knowledge: 2 }, logType: 'positive' }] }] } 
+         ] 
+     }, 
+ 
+     // ================ 【信息学部】网络/电路 ================ 
+     { 
+         id: 'cc98_debug', name: '论坛维护', icon: 'fas fa-server', category: 'skill', 
+         description: '校内CC98论坛突然崩溃，网络中心急需志愿者协助修复。', 
+         months: [6, 12], grades: [2, 3], majorNames: ['计算机科学与技术学院', '软件学院', '网络空间安全学院'], 
+         options: [ 
+             { id: 'fix', text: '大神出马', cost: { energy: 15, skill: 60 }, outcomes: [ 
+                 { weight: 60, type: 'success', subOutcomes: [{ weight: 100, name: '全校膜拜', desc: '修复关键Bug，帖子都在夸你！', effects: { social: 5, skill: 3 }, logType: 'positive' }] }, 
+                 { weight: 40, type: 'fail', subOutcomes: [{ weight: 100, name: '越修越乱', desc: '不得不请外援。', effects: { health: -4 }, logType: 'negative' }] } 
+             ]}, 
+             { id: 'ignore', text: '围观吃瓜', cost: null, outcomes: [{ weight: 100, type: 'neutral', subOutcomes: [{ weight: 100, name: '断网学习', desc: '清净了。', effects: { knowledge: 1 }, logType: 'normal' }] }] } 
+         ] 
+     }, 
+     { 
+         id: 'solder_board', name: '电路焊接', icon: 'fas fa-microchip', category: 'skill', 
+         description: '模电实验课，空气中弥漫着松香的味道。', 
+         months: [5, 11], grades: [2], majorNames: ['电气工程学院', '信息与电子工程学院', '控制科学与工程学院'], 
+         options: [ 
+             { id: 'perfect', text: '追求完美焊点', cost: { energy: 10 }, outcomes: [ 
+                 { weight: 70, type: 'success', subOutcomes: [{ weight: 100, name: '一次点亮', desc: '焊点饱满，功能正常！', effects: { skill: 4 }, logType: 'positive' }] }, 
+                 { weight: 30, type: 'fail', subOutcomes: [{ weight: 100, name: '虚焊炸机', desc: '冒烟了...', effects: { money: -50 }, logType: 'negative' }] } 
+             ]}, 
+             { id: 'slow', text: '慢慢焊', cost: { energy: 15 }, outcomes: [{ weight: 100, type: 'success', subOutcomes: [{ weight: 100, name: '稳', desc: '虽然慢但能用。', effects: { skill: 2 }, logType: 'normal' }] }] } 
+         ] 
+     }, 
+ 
+     // ================ 【农生环学部】茶园/动物 ================ 
+     { 
+         id: 'tea_garden', name: '龙井采茶', icon: 'fas fa-leaf', category: 'entertainment', 
+         description: '春季实践，农学院组织去茶园体验“求是茶”制作。', 
+         months: [3, 4], grades: [1, 2], majorNames: ['农业与生物技术学院', '环境与资源学院'], 
+         options: [ 
+             { id: 'pick', text: '采摘一芽一叶', cost: { energy: 10 }, outcomes: [ 
+                 { weight: 60, type: 'success', subOutcomes: [{ weight: 100, name: '心旷神怡', desc: '带回了新茶。', effects: { health: 3, social: 2 }, logType: 'positive' }] }, 
+                 { weight: 40, type: 'fail', subOutcomes: [{ weight: 100, name: '晒伤', desc: '脖子晒脱皮了。', effects: { health: -2 }, logType: 'negative' }] } 
+             ]}, 
+             { id: 'drink', text: '只喝茶', cost: { money: 100 }, outcomes: [{ weight: 100, type: 'success', subOutcomes: [{ weight: 100, name: '惬意', desc: '向往的生活。', effects: { social: 4 }, logType: 'positive' }] }] } 
+         ] 
+     }, 
+     { 
+         id: 'animal_duty', name: '动物房值班', icon: 'fas fa-paw', category: 'skill', 
+         description: '轮到你去照顾实验室的小白鼠和兔子了。', 
+         months: [3, 4, 9, 10], grades: [2, 3], majorNames: ['动物科学学院', '生命科学学院'], 
+         options: [ 
+             { id: 'care', text: '细心照料', cost: { energy: 10 }, outcomes: [ 
+                 { weight: 60, type: 'success', subOutcomes: [{ weight: 100, name: '状态良好', desc: '实验数据有保障。', effects: { skill: 3 }, logType: 'positive' }] }, 
+                 { weight: 40, type: 'fail', subOutcomes: [{ weight: 100, name: '被咬了', desc: '要去打疫苗...', effects: { health: -5, money: -200 }, logType: 'negative' }] } 
+             ]}, 
+             { id: 'quick', text: '速战速决', cost: { energy: 5 }, outcomes: [{ weight: 100, type: 'success', subOutcomes: [{ weight: 100, name: '完成', desc: '匆忙搞定。', effects: { skill: 1 }, logType: 'normal' }] }] } 
+         ] 
+     }, 
+ 
+     // ================ 【人文学部】考古/翻译 ================ 
+     { 
+         id: 'archaeology', name: '田野挖掘', icon: 'fas fa-brush', category: 'academic', 
+         description: '前往良渚遗址进行田野实习，接触第一现场。', 
+         months: [4, 10], grades: [2, 3], majorNames: ['艺术与考古学院', '历史学院'], 
+         options: [ 
+             { id: 'dig', text: '精细挖掘', cost: { energy: 15 }, outcomes: [ 
+                 { weight: 60, type: 'success', subOutcomes: [{ weight: 100, name: '发现陶片', desc: '关键文物出土！', effects: { knowledge: 4, skill: 2 }, logType: 'positive' }] }, 
+                 { weight: 40, type: 'fail', subOutcomes: [{ weight: 100, name: '腰酸背痛', desc: '全是泥土。', effects: { health: -3 }, logType: 'negative' }] } 
+             ]}, 
+             { id: 'draw', text: '绘图记录', cost: { energy: 5 }, outcomes: [{ weight: 100, type: 'success', subOutcomes: [{ weight: 100, name: '标准', desc: '剖面图很完美。', effects: { skill: 2 }, logType: 'normal' }] }] } 
+         ] 
+     }, 
+     { 
+         id: 'trans_task', name: '紧急翻译', icon: 'fas fa-language', category: 'skill', 
+         description: '教授急需翻译一篇学术综述，Deadline就在明早。', 
+         months: [5, 11], grades: [2, 3], majorNames: ['外国语学院', '传媒与国际学院'], 
+         options: [ 
+             { id: 'accept', text: '通宵肝', cost: { energy: 20 }, outcomes: [ 
+                 { weight: 80, type: 'success', subOutcomes: [{ weight: 100, name: '信达雅', desc: '报酬丰厚！', effects: { money: 500, skill: 3 }, logType: 'positive' }] }, 
+                 { weight: 20, type: 'fail', subOutcomes: [{ weight: 100, name: '翻车', desc: '术语错了被返工。', effects: { energy: -10 }, logType: 'negative' }] } 
+             ]}, 
+             { id: 'reject', text: '婉拒', cost: null, outcomes: [{ weight: 100, type: 'neutral', subOutcomes: [{ weight: 100, name: '保命', desc: '狗命要紧。', effects: { health: 2 }, logType: 'normal' }] }] } 
+         ] 
+     }, 
+ 
+     // ================ 【社科学部】法庭/炒股 ================ 
+     { 
+         id: 'moot_court', name: '模拟法庭', icon: 'fas fa-gavel', category: 'skill', 
+         description: '光华法学院年度大戏，案情错综复杂。', 
+         months: [11], grades: [2, 3], majorNames: ['光华法学院'], 
+         options: [ 
+             { id: 'lawyer', text: '担任辩护', cost: { energy: 12, knowledge: 60 }, outcomes: [ 
+                 { weight: 50, type: 'success', subOutcomes: [{ weight: 100, name: '最佳辩手', desc: '驳得对方哑口无言！', effects: { skill: 5, social: 3 }, logType: 'positive' }] }, 
+                 { weight: 50, type: 'fail', subOutcomes: [{ weight: 100, name: '卡壳', desc: '被法官问住了。', effects: { social: -2 }, logType: 'negative' }] } 
+             ]}, 
+             { id: 'watch', text: '旁听', cost: { energy: 3 }, outcomes: [{ weight: 100, type: 'success', subOutcomes: [{ weight: 100, name: '笔记满满', desc: '学到了实务技巧。', effects: { knowledge: 2 }, logType: 'normal' }] }] } 
+         ] 
+     }, 
+     { 
+         id: 'stock_sim', name: '模拟炒股', icon: 'fas fa-chart-line', category: 'skill', 
+         description: '给你100万虚拟资金，看看谁是股神。', 
+         months: [4, 10], grades: [2, 3], majorNames: ['经济学院', '金融学系'], 
+         options: [ 
+             { id: 'all_in', text: '满仓梭哈', cost: { energy: 5 }, outcomes: [ 
+                 { weight: 40, type: 'success', subOutcomes: [{ weight: 100, name: '翻倍', desc: '押中妖股，全场第一！', effects: { money: 1000, skill: 2 }, logType: 'positive' }] }, 
+                 { weight: 60, type: 'fail', subOutcomes: [{ weight: 100, name: '韭菜', desc: '亏损50%...', effects: { social: -2 }, logType: 'negative' }] } 
+             ]}, 
+             { id: 'analyze', text: '价值投资', cost: { knowledge: 60 }, outcomes: [{ weight: 100, type: 'success', subOutcomes: [{ weight: 100, name: '稳健', desc: '收益稳定，教授点赞。', effects: { knowledge: 2 }, logType: 'positive' }] }] } 
+         ] 
+     }, 
+ 
+     // ================ 【理学部】心理/实验 ================ 
+     { 
+         id: 'psy_test', name: '心理被试', icon: 'fas fa-brain', category: 'social', 
+         description: '心理系招募实验被试，坐电脑前按键40分钟。', 
+         months: [3, 9], grades: [1, 2, 3], majorNames: ['心理与行为科学系', '理科试验班'], 
+         options: [ 
+             { id: 'money', text: '赚零花钱', cost: { energy: 5 }, outcomes: [{ weight: 100, type: 'success', subOutcomes: [{ weight: 100, name: '轻松入账', desc: '拿到了50块钱劳务费。', effects: { money: 50 }, logType: 'positive' }] }] }, 
+             { id: 'study', text: '分析设计', cost: { knowledge: 50 }, outcomes: [{ weight: 100, type: 'success', subOutcomes: [{ weight: 100, name: '洞察', desc: '看穿了实验变量设计。', effects: { knowledge: 3 }, logType: 'positive' }] }] } 
+         ] 
+     }
 ];
 
 const EVENT_INDEX = new Map();
