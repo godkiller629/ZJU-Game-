@@ -1893,6 +1893,28 @@ body.theme-dark {
     .col-center { order: 1; }
     .col-left { order: 2; }
     .col-right { order: 3; }
+    
+    /* 关键修复：移动端切换 Tab 时，让页面主体真正切换 */
+    body[data-active-tab="project"] .col-left,
+    body[data-active-tab="project"] .col-right,
+    body[data-active-tab="shop"] .col-left,
+    body[data-active-tab="shop"] .col-right,
+    body[data-active-tab="system"] .col-left,
+    body[data-active-tab="system"] .col-right {
+        display: none;
+    }
+
+    body[data-active-tab="project"] .col-center,
+    body[data-active-tab="shop"] .col-center,
+    body[data-active-tab="system"] .col-center {
+        width: 100%;
+    }
+
+    /* 仅首页展示完整信息流（行动 + 档案 + 日志） */
+    body[data-active-tab="home"] .col-left,
+    body[data-active-tab="home"] .col-right {
+        display: flex;
+    }
 
     .panel {
         border-radius: 14px;
@@ -1932,6 +1954,7 @@ body.theme-dark {
         border-radius: 12px;
         padding: 6px;
         gap: 6px;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
     }
 
     .tab-btn {

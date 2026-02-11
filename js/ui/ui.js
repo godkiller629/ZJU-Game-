@@ -21,7 +21,10 @@ export const UI = {
         document.querySelectorAll('.tab-pane').forEach(pane => {
             pane.classList.remove('active');
         });
-        document.getElementById(`tab-${tabId}`).classList.add('active');
+        const targetPane = document.getElementById(`tab-${tabId}`);
+        if (targetPane) targetPane.classList.add('active');
+        // 记录当前标签页，供移动端布局做显隐控制
+        document.body.dataset.activeTab = tabId;
         if (tabId === 'system') SaveSystem.refreshUI();
     },
 

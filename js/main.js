@@ -122,6 +122,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', (e) => UI.switchTab(e.currentTarget.dataset.tab));
     });
+    // 初始化标签状态，确保移动端显隐逻辑与当前页面一致
+    UI.switchTab('home');
 
     document.getElementById('next-month').addEventListener('click', () => {
     // 检查是否毕业，防止通过点击事件绕过
