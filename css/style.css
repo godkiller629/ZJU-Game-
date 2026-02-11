@@ -1229,7 +1229,7 @@ body.theme-dark {
     }
     body[data-active-tab="home"] .center-content-area {
         overflow: auto;
-        padding-bottom: 80px; /* 增加padding-bottom，确保"进入下个月"按钮不被遮挡 */
+        padding-bottom: 10px; /* 移除大面积留白，避免白色带 */
     }
 
     /* 面板样式：去圆角，全屏感 */
@@ -1264,11 +1264,11 @@ body.theme-dark {
         border-top: 1px solid var(--border-0);
         background: var(--surface-0);
         box-shadow: 0 -2px 10px rgba(0,0,0,0.06);
-        padding: 4px 0;
-        padding-bottom: env(safe-area-inset-bottom, 4px);
+        padding: 2px 0;
+        padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 2px);
         gap: 0;
         height: auto; /* 确保高度自适应 */
-        min-height: 50px; /* 设置最小高度，确保按钮可见 */
+        min-height: 54px; /* 统一底栏高度，便于按钮避让 */
     }
     .mobile-bottom-nav .tab-btn {
         flex: 1;
@@ -1375,7 +1375,7 @@ body.theme-dark {
         border-radius: 0;
         box-shadow: none;
         padding: 12px 14px;
-        padding-bottom: 80px; /* 增加padding-bottom，确保底部内容不被遮挡 */
+        padding-bottom: 12px; /* 避免形成大白带 */
         overflow-y: auto;
         min-height: 0;
         background: var(--surface-0); /* 确保背景色一致 */
@@ -1435,8 +1435,9 @@ body.theme-dark {
         margin-top: 10px;
         margin-bottom: 0; /* 移除底部margin，避免产生间隙 */
         border-radius: 10px;
-        position: relative; /* 确保按钮位置正确 */
-        z-index: 1; /* 确保按钮在导航栏之上 */
+        position: sticky; /* 始终贴在可视底部上方 */
+        bottom: calc(env(safe-area-inset-bottom, 0px) + 62px); /* 避开底部导航栏 */
+        z-index: 5;
     }
 
     /* --- 弹窗通用 --- */
