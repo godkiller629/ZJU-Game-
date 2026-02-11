@@ -199,13 +199,14 @@ body.theme-dark {
 /* 确保中间区域高度受限，出现滚动条而不是撑开页面 */
 .col-center { grid-column: 2; display: flex; flex-direction: column; gap: 15px; max-height: 95vh; overflow: hidden; }
 .center-content-area { flex: 1; background: var(--surface-0); border-radius: var(--border-radius); box-shadow: var(--shadow); padding: 15px; overflow-y: auto; position: relative; display: flex; flex-direction: column; }
-#tab-home { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+#tab-home { flex: 1; flex-direction: column; overflow: hidden; }
 /* 让actions-grid自适应高度但不过高 */
 .actions-grid { flex: 0 0 auto; } 
 /* 确保下个月按钮固定在底部或者可见 */
 .next-month-btn { flex: 0 0 auto; }
 .tab-pane { display: none; height: 100%; }
 .tab-pane.active { display: block; animation: fadeIn 0.3s ease; }
+#tab-home.tab-pane.active { display: flex; }
 
 /* 行动区域标题 */
 .action-section-title {
@@ -1910,6 +1911,13 @@ body.theme-dark {
         width: 100%;
     }
 
+    body[data-active-tab="project"] .center-content-area,
+    body[data-active-tab="shop"] .center-content-area,
+    body[data-active-tab="system"] .center-content-area {
+        min-height: 62vh;
+        padding: 14px;
+    }
+
     /* 仅首页展示完整信息流（行动 + 档案 + 日志） */
     body[data-active-tab="home"] .col-left,
     body[data-active-tab="home"] .col-right {
@@ -2071,6 +2079,23 @@ body.theme-dark {
 
     .modal-content {
         border-radius: 14px;
+    }
+
+    /* 非首页标签页：更简洁的移动端视觉 */
+    #tab-project > div,
+    #tab-shop > div {
+        margin-top: 8px;
+        padding: 22px 16px !important;
+        border: 1px dashed var(--border-0);
+        border-radius: 12px;
+        background: var(--surface-1);
+        color: var(--text-1) !important;
+        font-size: 14px;
+    }
+
+    #tab-system {
+        overflow-y: auto;
+        padding-right: 2px;
     }
 }
 
