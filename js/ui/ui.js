@@ -14,7 +14,7 @@ export const UI = {
     },
 
     switchTab(tabId) {
-        // 更新按钮状态
+        // 更新所有tab按钮状态（桌面顶部 + 移动端底部）
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.classList.remove('active');
             if(btn.dataset.tab === tabId) btn.classList.add('active');
@@ -148,6 +148,20 @@ export const UI = {
             </div>
         `;
         statsGrid.innerHTML = html;
+
+        // 同步更新移动端首页状态摘要条
+        const mobileBar = document.getElementById('mobile-stats-bar');
+        if (mobileBar) {
+            const hColor = player.health < 70 ? '#ff5722' : player.health < 80 ? '#f5a623' : 'var(--primary-color)';
+            mobileBar.innerHTML = `
+                <div class="m-stat"><i class="fas fa-book"></i><b>${player.knowledge}</b></div>
+                <div class="m-stat"><i class="fas fa-tools"></i><b>${player.skill}</b></div>
+                <div class="m-stat"><i class="fas fa-users"></i><b>${player.social}</b></div>
+                <div class="m-stat" style="color:${hColor}"><i class="fas fa-heart"></i><b>${player.health}</b></div>
+                <div class="m-stat"><i class="fas fa-bolt"></i><b>${player.energy}</b></div>
+                <div class="m-stat"><i class="fas fa-coins"></i><b>¥${player.money}</b></div>
+            `;
+        }
     },
 
     updateActions() {

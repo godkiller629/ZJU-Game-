@@ -1133,9 +1133,11 @@ body.theme-dark {
 }
 
 /* ========================================
-   桌面端隐藏移动专用Tab
+   桌面端/移动端专属元素显隐
    ======================================== */
 .mobile-tab { display: none; }
+.mobile-bottom-nav { display: none; }
+.mobile-stats-bar { display: none; }
 
 /* ========================================
    移动端完整重构 - App风格单屏布局
@@ -1212,16 +1214,17 @@ body.theme-dark {
         gap: 0;
     }
 
-    /* 桌面顶部Tab在这里变底部导航 */
-    .tab-container {
-        order: 99; /* 排到最后 */
+    /* 隐藏桌面端顶部Tab */
+    .desktop-tab { display: none !important; }
+
+    /* === 独立的底部导航栏 === */
+    .mobile-bottom-nav {
+        display: flex !important;
         position: fixed;
         bottom: 0;
         left: 0;
         right: 0;
         z-index: 1000;
-        border-radius: 0;
-        border: none;
         border-top: 1px solid var(--border-0);
         background: var(--surface-0);
         box-shadow: 0 -2px 10px rgba(0,0,0,0.06);
@@ -1229,8 +1232,7 @@ body.theme-dark {
         padding-bottom: env(safe-area-inset-bottom, 4px);
         gap: 0;
     }
-    .mobile-tab { display: flex; } /* 移动端显示档案/日志Tab */
-    .tab-btn {
+    .mobile-bottom-nav .tab-btn {
         flex: 1;
         flex-direction: column;
         gap: 2px;
@@ -1244,23 +1246,49 @@ body.theme-dark {
         color: var(--text-1);
         box-shadow: none;
     }
-    .tab-btn:hover {
+    .mobile-bottom-nav .tab-btn:hover {
         transform: none;
         box-shadow: none;
         background: transparent;
     }
-    .tab-btn i { font-size: 18px; margin: 0; color: inherit; }
-    .tab-btn span { display: block; font-size: 10px; line-height: 1.2; }
-    .tab-btn.active {
+    .mobile-bottom-nav .tab-btn i { font-size: 18px; margin: 0; color: inherit; }
+    .mobile-bottom-nav .tab-btn span { display: block; font-size: 10px; line-height: 1.2; }
+    .mobile-bottom-nav .tab-btn.active {
         background: transparent;
         color: var(--primary-color);
         box-shadow: none;
         border: none;
     }
-    .theme-dark .tab-container {
+    .theme-dark .mobile-bottom-nav {
         background: var(--surface-0);
         border-top-color: var(--border-0);
     }
+
+    /* === 移动端首页状态摘要条 === */
+    .mobile-stats-bar {
+        display: flex !important;
+        gap: 4px;
+        padding: 8px 6px;
+        margin-bottom: 8px;
+        background: var(--surface-1);
+        border-radius: 10px;
+        border: 1px solid var(--border-0);
+        overflow-x: auto;
+        flex-shrink: 0;
+    }
+    .mobile-stats-bar .m-stat {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+        font-size: 10px;
+        color: var(--primary-color);
+        min-width: 0;
+        white-space: nowrap;
+    }
+    .mobile-stats-bar .m-stat i { font-size: 12px; opacity: 0.7; }
+    .mobile-stats-bar .m-stat b { font-size: 13px; font-weight: 800; }
 
     /* 内容区撑满（减去header+底栏高度） */
     .center-content-area {
