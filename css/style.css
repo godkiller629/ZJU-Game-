@@ -1294,35 +1294,67 @@ body.theme-dark {
         border-top-color: var(--border-0);
     }
 
-    /* 首页档案栏紧凑化：行动在上，档案在下 */
+    /* 首页档案栏重排：更像成熟游戏App的紧凑信息面板 */
     body[data-active-tab="home"] .col-left .panel-header {
-        padding: 8px 12px;
+        padding: 7px 10px;
     }
     body[data-active-tab="home"] .col-left .panel-title {
-        font-size: 14px;
-        gap: 6px;
+        font-size: 13px;
+        gap: 5px;
     }
     body[data-active-tab="home"] .col-left .panel-content {
-        padding: 8px 10px;
+        padding: 6px 8px;
     }
-    body[data-active-tab="home"] .col-left .stats-grid {
-        gap: 6px;
-        margin-bottom: 6px;
+    body[data-active-tab="home"] .col-left #stats.stats-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 5px;
+        margin-bottom: 2px;
     }
-    body[data-active-tab="home"] .col-left .stat-item {
-        padding: 7px 8px !important;
-        margin-bottom: 4px !important;
+    /* 首卡（学分/毕设）占满一行，强调核心进度 */
+    body[data-active-tab="home"] .col-left #stats > .stat-item:first-child {
+        grid-column: 1 / -1;
+    }
+    body[data-active-tab="home"] .col-left #stats > .stat-item {
+        padding: 6px 7px !important;
+        margin-bottom: 0 !important;
         border-left-width: 3px !important;
+        border-radius: 8px;
     }
-    body[data-active-tab="home"] .col-left .stat-name {
-        font-size: 12px;
-        gap: 6px;
+    body[data-active-tab="home"] .col-left #stats .stat-name {
+        font-size: 11px;
+        gap: 4px;
     }
-    body[data-active-tab="home"] .col-left .stat-value {
-        font-size: 15px;
+    body[data-active-tab="home"] .col-left #stats .stat-value {
+        font-size: 13px;
     }
-    body[data-active-tab="home"] .col-left .stat-progress {
+    body[data-active-tab="home"] .col-left #stats .stat-progress {
         height: 4px !important;
+    }
+    /* 金钱/GPA行（最后一块）也占满一行，并进一步压缩 */
+    body[data-active-tab="home"] .col-left #stats > div:last-child {
+        grid-column: 1 / -1;
+        margin-top: 1px !important;
+        gap: 5px !important;
+    }
+    body[data-active-tab="home"] .col-left #stats > div:last-child .stat-item {
+        padding: 6px 7px !important;
+        margin-bottom: 0 !important;
+        font-size: 11px !important;
+        border-radius: 8px;
+    }
+    /* 收紧天赋小块，避免拉长页面 */
+    body[data-active-tab="home"] .col-left .innate-stats-container {
+        gap: 4px;
+        padding-top: 8px;
+        margin-top: 6px;
+    }
+    body[data-active-tab="home"] .col-left .innate-stat {
+        padding: 5px;
+        font-size: 10px;
+    }
+    body[data-active-tab="home"] .col-left .innate-stat-value {
+        font-size: 11px;
     }
 
     /* 内容区撑满（减去header+底栏高度） */
