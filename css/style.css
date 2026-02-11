@@ -1211,7 +1211,7 @@ body.theme-dark {
     body[data-active-tab="home"] .col-left {
         display: block !important;
         height: auto !important;
-        max-height: 34vh;
+        max-height: 40vh; /* 给档案栏更多可视高度，减少必须滑动 */
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
         flex-shrink: 0;
@@ -1432,11 +1432,11 @@ body.theme-dark {
     .next-month-btn {
         padding: 12px;
         font-size: 14px;
-        margin-top: 10px;
+        margin-top: 6px; /* 收紧与上方内容间距 */
         margin-bottom: 0; /* 移除底部margin，避免产生间隙 */
         border-radius: 10px;
         position: sticky; /* 始终贴在可视底部上方 */
-        bottom: calc(env(safe-area-inset-bottom, 0px) + 62px); /* 避开底部导航栏 */
+        bottom: calc(env(safe-area-inset-bottom, 0px) + 56px); /* 减少与底部导航的缝隙 */
         z-index: 5;
     }
 
