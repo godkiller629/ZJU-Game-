@@ -32,6 +32,7 @@ export const familyTypes = [
 // 大一到大三 普通行动
 export const actions = [
     { id: 'study', name: '学习', icon: 'fas fa-book', tag: 'both', cost: P.ACTION_MAJOR.COST, desc: '【主/次】学识+2，投入+20，健康-4' },
+    { id: 'intern', name: '实习', icon: 'fas fa-briefcase', tag: 'major', cost: P.INTERN.COST, desc: '【主要】锁定3个月，技能+4，社交+2，金钱+1500' },
     { id: 'social', name: '社交', icon: 'fas fa-users', tag: 'both', cost: P.ACTION_MAJOR.COST_LOW, desc: '【主/次】社交+4，健康+4' },
     { id: 'part_time', name: '兼职', icon: 'fas fa-store', tag: 'both', cost: P.ACTION_MAJOR.COST_LOW, desc: '【主/次】社交+2，技能+2，金钱+1000' },
     { id: 'fitness', name: '健身', icon: 'fas fa-dumbbell', tag: 'both', cost: P.ACTION_MAJOR.COST_LOW, desc: '【主/次】健康+8' },
@@ -41,6 +42,7 @@ export const actions = [
 // 假期行动
 export const holidayActions = [
     { id: 'holiday_preview', name: '预习', icon: 'fas fa-book-open', tag: 'both', cost: P.HOLIDAY.PREVIEW_COST, desc: '【主/次】学识+2，下学期投入+20' },
+    { id: 'holiday_intern', name: '实习', icon: 'fas fa-briefcase', tag: 'major', cost: P.INTERN.COST, desc: '【主要】锁定3个月，高收益' },
     { id: 'holiday_practice', name: '社会实践', icon: 'fas fa-hands-helping', tag: 'both', cost: P.HOLIDAY.PRACTICE_COST, desc: '【主/次】学识+2，技能+2' },
     { id: 'holiday_travel', name: '结伴旅行', icon: 'fas fa-plane', tag: 'both', cost: P.HOLIDAY.TRAVEL_COST, desc: '【主/次】社交+4，健康+4' },
     { id: 'part_time', name: '兼职', icon: 'fas fa-store', tag: 'both', cost: P.ACTION_MAJOR.COST_LOW, desc: '【主/次】社交+2，技能+2，金钱+1000' },
@@ -50,6 +52,7 @@ export const holidayActions = [
 // 大四行动
 export const seniorActions = [
     { id: 'thesis', name: '毕设', icon: 'fas fa-file-alt', tag: 'both', cost: P.SENIOR.THESIS_COST, desc: '【主/次】进度+30%' },
+    { id: 'intern', name: '实习', icon: 'fas fa-briefcase', tag: 'major', cost: P.INTERN.COST, desc: '【主要】锁定3个月，技能+4，社交+2，金钱+1500' },
     { id: 'job_hunt', name: '求职', icon: 'fas fa-user-tie', tag: 'both', cost: P.SENIOR.JOB_COST, desc: '【主/次】社交+2，技能+2' },
     { id: 'social', name: '社交', icon: 'fas fa-users', tag: 'both', cost: P.ACTION_MAJOR.COST_LOW, desc: '【主/次】社交+4，健康+4' },
     { id: 'fitness', name: '健身', icon: 'fas fa-dumbbell', tag: 'both', cost: P.ACTION_MAJOR.COST_LOW, desc: '【主/次】健康+8' },
