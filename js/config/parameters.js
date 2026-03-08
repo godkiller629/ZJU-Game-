@@ -102,6 +102,21 @@ export const GAME_PARAMS = {
         'ag_life_env': 4.2
     },
 
+    // --- 项目中心 ---
+    PROJECTS: {
+        MAIN_SLOTS: 1,
+        EXPERIENCE_SLOTS: 1,
+        SHORT_EXPERIENCE_MONTHS: [2, 7, 8],
+        MAIN_ACTION_COST: 24,
+        EXPERIENCE_ACTION_COST: 18,
+        MENTOR_CONTACT_COST: 12,
+        MENTOR_FOLLOW_COST: 10,
+        MAIN_MINOR_FACTOR: 0.5,
+        EXPERIENCE_MINOR_FACTOR: 0.6,
+        BAOYAN_RESEARCH_THRESHOLD: 10,
+        DEFAULT_QUALITY_GAIN: 8
+    },
+
     // --- 成就奖励 ---
     ACHIEVEMENT_REWARD: 1000
 };

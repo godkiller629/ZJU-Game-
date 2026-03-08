@@ -1,6 +1,8 @@
 // js/features/endings.js
 // 结局系统：独立文件，方便后续扩展解锁条件与评语
 
+import { getProjectEndingSummary } from './projects.js';
+
 function pickOne(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
@@ -10,6 +12,7 @@ function pickOne(arr) {
  * @returns {{ title: string, text: string }}
  */
 export function getEndingResult(p) {
+  const projectSummary = getProjectEndingSummary();
   const baoyan = !!p.baoyanQualified;
   const thesisDone = (p.thesis || 0) >= 100;
   const graduated = (p.totalCreditsEarned || 0) >= (p.targetCredits || 0) && thesisDone;
@@ -35,6 +38,12 @@ export function getEndingResult(p) {
 
     // 保研且完成毕设：顺利毕业并升学
     if (graduated) {
+      if (projectSummary.mentorAccepted) {
+        return {
+          title: '结局 · 升学',
+          text: '恭喜你顺利毕业并完成联系导师流程，带着明确的接收意向走向新的科研阶段。'
+        };
+      }
       if (lowHealth) {
         return {
           title: '结局 · 升学',
@@ -71,6 +80,25 @@ export function getEndingResult(p) {
 
   // --- 非保研线 ---
   if (graduated) {
+    if (projectSummary.postgraduateScore >= 16 || projectSummary.hasCompletedKaoyan) {
+      return {
+        title: '结局 · 再战升学',
+        text: '你顺利毕业，并带着持续准备考研的积累继续向更高的平台发起冲击。'
+      };
+    }
+    if (projectSummary.careerScore >= 18 || projectSummary.hasLongInternship) {
+      return {
+        title: '结局 · 职场启程',
+        text: '你顺利毕业，把长期实习与项目经历转化成了求职竞争力，正式迈向职场。'
+      };
+    }
+    if (projectSummary.researchScore >= 12 || projectSummary.hasCompletedSRTP) {
+      return {
+        title: '结局 · 科研种子',
+        text: '你顺利毕业，虽然没有走上保研线，但已经留下足够扎实的科研起点。'
+      };
+    }
+
     // 同时满足：健康 > 社交 > 技能
     if (lowHealth) {
       return {

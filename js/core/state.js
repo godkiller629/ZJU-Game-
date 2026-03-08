@@ -46,6 +46,25 @@ export const player = {
         triggeredEvents: [],
         lastTriggeredKey: ''
     },
+    projects: [],
+    projectHistory: [],
+    activeMainProjectId: null,
+    activeExperienceId: null,
+    selectedProjectId: null,
+    routeFocus: 'balanced',
+    routeScores: {
+        research: 0,
+        postgraduate: 0,
+        career: 0
+    },
+    baoyanFlow: {
+        qualified: false,
+        unlockedAt: null,
+        targetMentorId: null,
+        contactStatus: 'locked',
+        replyScore: 0,
+        accepted: false
+    },
     isGraduated: false, // 毕业标记（到达结算月份后锁定游戏）
     baoyanQualified: false // 是否获得保研资格（2024年9月判定）
 };

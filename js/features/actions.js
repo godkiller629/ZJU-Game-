@@ -20,6 +20,11 @@ export function handleAction(actionId) {
     if (player.phase === 'done') return;
     if (checkHealth()) return;
 
+    if (actionId === 'intern' || actionId === 'holiday_intern') {
+        UI.showMessageModal('项目中心', '实习已整合进项目中心。<br>请前往“项目”页开启长期实习或短期实习经历。');
+        return;
+    }
+
     // 1. 确定当前可用的动作列表
     const isHoliday = [2, 7, 8].includes(player.month);
     let actionList;
@@ -58,16 +63,7 @@ export function handleAction(actionId) {
         return;
     }
 
-    // 3. 实习锁定检查
-    if (actionId === 'intern' || actionId === 'holiday_intern') {
-        UI.showConfirmModal("开启实习将锁定未来 <b>2个月</b> 的主要行动（含假期）。<br>确定要开始吗？", () => {
-             player.internLock = 2;
-             handleInternLoop();
-        });
-        return;
-    }
-
-    // 4. 计算数值变化 (根据阶段减半)
+    // 3. 计算数值变化 (根据阶段减半)
     let isMinorPhase = (currentPhase === 'minor');
     let multiplier = isMinorPhase ? 0.5 : 1.0;
     

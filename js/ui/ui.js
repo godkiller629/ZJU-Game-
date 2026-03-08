@@ -3,6 +3,7 @@ import { player } from '../core/state.js';
 import { holidayActions, actions, seniorActions, collegesData, achievementList } from '../config/data.js';
 import { SaveSystem } from '../systems/save.js';
 import { GAME_PARAMS } from '../config/parameters.js';
+import { getProjectCenterState } from '../features/projects.js';
 
 export const UI = {
     updateAll() {
@@ -11,6 +12,9 @@ export const UI = {
         this.renderSkills();
         this.updateActions();
         this.updatePhaseIndicator();
+        if (document.body.dataset.activeTab === 'project') {
+            this.renderProjectCenter();
+        }
     },
 
     switchTab(tabId) {
@@ -30,6 +34,264 @@ export const UI = {
         // 记录当前标签页，供移动端 CSS 做页面级显隐
         document.body.dataset.activeTab = tabId;
         if (tabId === 'system') SaveSystem.refreshUI();
+        if (tabId === 'project') this.renderProjectCenter();
+    },
+
+    renderProjectCenter() {
+        const pane = document.getElementById('tab-project');
+        if (!pane) return;
+
+        const state = getProjectCenterState();
+        pane.innerHTML = `
+            <div class="project-center">
+                <div class="project-header-block">
+                    <h2 class="section-title project-title"><i class="fas fa-project-diagram"></i> 项目中心</h2>
+                    <div class="project-subtitle">主项目、短期经历与保研后续流程统一在这里管理。</div>
+                </div>
+                ${this.renderProjectDashboard(state)}
+                <div class="project-main-layout">
+                    ${this.renderActiveProjectPanel(state.activeMainProject)}
+                    ${this.renderExperiencePanel(state.activeExperience, state.experienceCatalog)}
+                </div>
+                ${this.renderProjectCatalog(state.mainCatalog, state.experienceCatalog)}
+                ${this.renderProjectHistory(state.history)}
+            </div>
+        `;
+    },
+
+    renderProjectDashboard(state) {
+        const focusMap = {
+            balanced: '均衡发展',
+            research: '科研导向',
+            postgraduate: '升学导向',
+            career: '就业导向'
+        };
+        const baoyan = state.baoyanFlow || {};
+        const mentorName = state.mentorCandidates.find((item) => item.id === baoyan.targetMentorId)?.name || '未选择';
+        const mentorButtons = state.mentorCandidates.map((mentor) => `
+            <button class="project-inline-btn" onclick="window.contactProjectMentor('${mentor.id}')">
+                联系${mentor.name}
+            </button>
+        `).join('');
+
+        let mentorHtml = `
+            <div class="project-badge-row">
+                <span class="project-badge muted">未获得保研资格</span>
+                <span class="project-meta-text">先把 GPA 和科研成果做出来，再来考虑联系导师。</span>
+            </div>
+        `;
+
+        if (baoyan.contactStatus === 'available') {
+            mentorHtml = `
+                <div class="project-badge-row">
+                    <span class="project-badge success">已获得保研资格</span>
+                    <span class="project-meta-text">下一步：联系导师，争取拿到接收意向。</span>
+                </div>
+                <div class="mentor-list">${mentorButtons}</div>
+            `;
+        } else if (baoyan.contactStatus === 'contacted' || baoyan.contactStatus === 'replied') {
+            mentorHtml = `
+                <div class="project-badge-row">
+                    <span class="project-badge warning">联系导师进行中</span>
+                    <span class="project-meta-text">当前导师：${mentorName}，匹配度 ${baoyan.replyScore || 0}</span>
+                </div>
+                <div class="mentor-progress-card">
+                    <div>联系状态：${baoyan.contactStatus === 'contacted' ? '已发送联系' : '导师已回复'}</div>
+                    <button class="project-inline-btn" onclick="window.followProjectMentor()">继续跟进</button>
+                </div>
+            `;
+        } else if (baoyan.contactStatus === 'accepted') {
+            mentorHtml = `
+                <div class="project-badge-row">
+                    <span class="project-badge success">导师已接收</span>
+                    <span class="project-meta-text">当前导师：${mentorName}，你的保研流程已经基本落定。</span>
+                </div>
+            `;
+        } else if (baoyan.contactStatus === 'rejected') {
+            mentorHtml = `
+                <div class="project-badge-row">
+                    <span class="project-badge danger">联系未成功</span>
+                    <span class="project-meta-text">当前导师：${mentorName}，可以继续提升科研成果后再尝试。</span>
+                </div>
+            `;
+        }
+
+        return `
+            <div class="project-dashboard-card">
+                <div class="project-score-grid">
+                    <div class="project-score-item">
+                        <span class="project-score-label">当前路线</span>
+                        <strong>${focusMap[state.routeFocus] || '均衡发展'}</strong>
+                    </div>
+                    <div class="project-score-item">
+                        <span class="project-score-label">科研分</span>
+                        <strong>${state.routeScores.research || 0}</strong>
+                    </div>
+                    <div class="project-score-item">
+                        <span class="project-score-label">升学分</span>
+                        <strong>${state.routeScores.postgraduate || 0}</strong>
+                    </div>
+                    <div class="project-score-item">
+                        <span class="project-score-label">就业分</span>
+                        <strong>${state.routeScores.career || 0}</strong>
+                    </div>
+                </div>
+                <div class="project-flow-card">
+                    <div class="project-flow-title"><i class="fas fa-user-graduate"></i> 保研后续流程</div>
+                    ${mentorHtml}
+                </div>
+            </div>
+        `;
+    },
+
+    renderActiveProjectPanel(project) {
+        if (!project) {
+            return `
+                <div class="project-slot-card">
+                    <div class="project-slot-title"><i class="fas fa-flag"></i> 当前主项目</div>
+                    <div class="project-empty-card">你当前还没有主项目。可以从下方项目卡片中选择一条长期路线。</div>
+                </div>
+            `;
+        }
+
+        const phaseMap = {
+            proposal: '立项阶段',
+            progress: '推进阶段',
+            sprint: '冲刺阶段',
+            wrapup: '收尾阶段'
+        };
+
+        const milestones = project.milestones.map((milestone) => `
+            <div class="project-milestone ${milestone.completed ? 'completed' : ''}">
+                <span>${milestone.title}</span>
+                <span>${milestone.completed ? '已完成' : `${milestone.threshold}%`}</span>
+            </div>
+        `).join('');
+
+        return `
+            <div class="project-slot-card">
+                <div class="project-slot-title"><i class="${project.icon}"></i> 当前主项目</div>
+                <div class="project-card project-active-card">
+                    <div class="project-card-top">
+                        <div>
+                            <div class="project-card-title">${project.name}</div>
+                            <div class="project-meta-text">阶段：${phaseMap[project.phase] || project.phase} · 剩余 ${project.monthsRemaining} 个月</div>
+                        </div>
+                        <span class="project-badge primary">主项目</span>
+                    </div>
+                    <div class="project-progress-bar"><div style="width:${Math.min(project.progress, 100)}%"></div></div>
+                    <div class="project-progress-text">进度 ${project.progress}% · 质量 ${project.quality}</div>
+                    <div class="project-milestone-list">${milestones}</div>
+                    <div class="project-action-row">
+                        <button class="project-action-btn" onclick="window.advanceProjectEntry('${project.id}')">投入项目</button>
+                        <button class="project-action-btn ghost" onclick="window.abandonProjectEntry('${project.id}')">放弃项目</button>
+                    </div>
+                </div>
+            </div>
+        `;
+    },
+
+    renderExperiencePanel(activeExperience, experienceCatalog) {
+        const catalogHtml = experienceCatalog.map((item) => `
+            <div class="project-mini-card ${item.canStart ? '' : 'disabled'}">
+                <div class="project-mini-header">
+                    <span>${item.name}</span>
+                    <span class="project-mini-tag">${item.duration}个月</span>
+                </div>
+                <div class="project-meta-text">${item.description}</div>
+                <button class="project-inline-btn" ${item.canStart ? `onclick="window.startProjectTemplate('${item.id}')"` : 'disabled'}>${item.canStart ? '报名经历' : item.blockedReason}</button>
+            </div>
+        `).join('');
+
+        const activeHtml = activeExperience ? `
+            <div class="project-card project-active-card compact">
+                <div class="project-card-top">
+                    <div>
+                        <div class="project-card-title">${activeExperience.name}</div>
+                        <div class="project-meta-text">进行中 · 剩余 ${activeExperience.monthsRemaining} 个月</div>
+                    </div>
+                    <span class="project-badge secondary">短经历</span>
+                </div>
+                <div class="project-progress-bar"><div style="width:${Math.min(activeExperience.progress, 100)}%"></div></div>
+                <div class="project-progress-text">进度 ${activeExperience.progress}%</div>
+                <div class="project-action-row">
+                    <button class="project-action-btn" onclick="window.advanceProjectEntry('${activeExperience.id}')">投入经历</button>
+                    <button class="project-action-btn ghost" onclick="window.abandonProjectEntry('${activeExperience.id}')">终止经历</button>
+                </div>
+            </div>
+        ` : '<div class="project-empty-card">当前没有正在进行的短期经历。</div>';
+
+        return `
+            <div class="project-slot-card">
+                <div class="project-slot-title"><i class="fas fa-briefcase"></i> 短期经历</div>
+                ${activeHtml}
+                <div class="project-subsection-title">可报名短经历</div>
+                <div class="project-mini-list">${catalogHtml || '<div class="project-empty-card">当前没有可开启的短期经历。</div>'}</div>
+            </div>
+        `;
+    },
+
+    renderProjectCatalog(mainCatalog, experienceCatalog) {
+        const categoryMap = {
+            research: '科研线',
+            postgraduate: '升学线',
+            practice: '实践线',
+            career: '求职线'
+        };
+
+        const mainHtml = mainCatalog.map((item) => `
+            <div class="project-card ${item.canStart ? '' : 'disabled'}">
+                <div class="project-card-top">
+                    <div>
+                        <div class="project-card-title">${item.name}</div>
+                        <div class="project-meta-text">${item.description}</div>
+                    </div>
+                    <span class="project-badge primary">${item.duration}个月</span>
+                </div>
+                <div class="project-chip-row">
+                    <span class="project-chip">${categoryMap[item.category] || item.category}</span>
+                    <span class="project-chip">进度+${item.progressGain}%</span>
+                </div>
+                <div class="project-meta-text">${item.blockedReason || '已满足条件，可立即启动。'}</div>
+                <button class="project-action-btn" ${item.canStart ? `onclick="window.startProjectTemplate('${item.id}')"` : 'disabled'}>${item.canStart ? '启动项目' : '暂不可用'}</button>
+            </div>
+        `).join('');
+
+        const enabledExperiences = experienceCatalog.filter((item) => !item.active);
+        const expCountText = enabledExperiences.length > 0 ? `当前可报名 ${enabledExperiences.length} 项短经历` : '当前没有新增短经历可报名';
+
+        return `
+            <div class="project-catalog-card">
+                <div class="project-slot-title"><i class="fas fa-compass"></i> 可启动项目</div>
+                <div class="project-meta-text">${expCountText}</div>
+                <div class="project-catalog-grid">${mainHtml}</div>
+            </div>
+        `;
+    },
+
+    renderProjectHistory(history) {
+        const statusMap = {
+            completed: '已完成',
+            failed: '失败',
+            abandoned: '已放弃'
+        };
+
+        const historyHtml = history.length > 0 ? history.map((item) => `
+            <div class="project-history-item">
+                <div>
+                    <div class="project-card-title small">${item.name}</div>
+                    <div class="project-meta-text">${item.finishedAt ? `${item.finishedAt.year}年${item.finishedAt.month}月` : '已归档'}</div>
+                </div>
+                <span class="project-badge ${item.status === 'completed' ? 'success' : item.status === 'failed' ? 'danger' : 'muted'}">${statusMap[item.status] || item.status}</span>
+            </div>
+        `).join('') : '<div class="project-empty-card">目前还没有项目归档记录。</div>';
+
+        return `
+            <div class="project-history-card">
+                <div class="project-slot-title"><i class="fas fa-box-archive"></i> 项目归档</div>
+                <div class="project-history-list">${historyHtml}</div>
+            </div>
+        `;
     },
 
     renderSaveSlots() {

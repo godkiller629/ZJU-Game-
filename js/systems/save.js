@@ -1,5 +1,6 @@
 import { player } from '../core/state.js';
 import { UI } from '../ui/ui.js';
+import { ensureProjectState } from '../features/projects.js';
 
 const SAVE_KEY_PREFIX = 'ZJU_SIM_SAVE_';
 
@@ -7,6 +8,7 @@ export const SaveSystem = {
     // 保存游戏
     save(slot) {
         try {
+            ensureProjectState();
             const data = {
                 player: player,
                 meta: {
@@ -41,6 +43,7 @@ export const SaveSystem = {
 
                 // 兼容性处理
                 if (!player.idle) player.idle = { study: 0, social: 0 };
+                ensureProjectState();
 
                 UI.updateAll();
                 UI.addLogEntry(`📂 读取存档成功 (槽位 ${slot})`, 'positive');
@@ -65,6 +68,7 @@ export const SaveSystem = {
 
     // 自动保存
     autoSave() {
+        ensureProjectState();
         const data = {
             player: player,
             meta: {

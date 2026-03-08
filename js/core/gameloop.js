@@ -7,12 +7,15 @@ import { SaveSystem } from '../systems/save.js';
 import { handleInternLoop } from '../features/actions.js';
 import { getEndingResult } from '../features/endings.js';
 import { EventSystem } from '../systems/event.js';
+import { canQualifyBaoyan, ensureProjectState, syncBaoyanFlow, tickProjectsForNewMonth } from '../features/projects.js';
 
 const P = GAME_PARAMS;
 
 export function nextMonth() {
     // 如果已经毕业，不再执行后续逻辑
     if (player.isGraduated) return;
+
+    ensureProjectState();
 
     if (checkHealth()) return;
     SaveSystem.autoSave();
@@ -22,6 +25,9 @@ export function nextMonth() {
 
     player.month++;
     if (player.month > 12) { player.month = 1; player.year++; }
+
+    const projectLogs = tickProjectsForNewMonth();
+    logProjectUpdates(projectLogs);
 
     // 毕业判定
     if (player.year === 2025 && player.month === 7) {
@@ -59,6 +65,8 @@ export function nextMonth() {
         // 事件检查在新学期弹窗关闭后触发（ui.js 中处理）
     }
 
+    syncBaoyanFlow();
+
     UI.updateAll();
     checkAchievements();
     
@@ -70,13 +78,50 @@ export function nextMonth() {
 
 function checkBaoyan() {
     const threshold = P.BAOYAN_SCORE[player.faculty] || 4.5;
-    if (player.gpa >= threshold) {
+    const researchReady = canQualifyBaoyan();
+    if (player.gpa >= threshold && researchReady) {
         player.baoyanQualified = true;
         UI.showMessageModal("🎓 保研结果", `恭喜你！<br>你的GPA (${player.gpa.toFixed(2)}) 达到了本专业保研线 (${threshold})。<br><b>获得了保研资格！</b>`);
+    } else if (player.gpa >= threshold && !researchReady) {
+        player.baoyanQualified = false;
+        UI.showMessageModal("🎓 保研结果", `你的GPA (${player.gpa.toFixed(2)}) 已达到本专业保研线 (${threshold})，但科研与项目积累不足。<br>想走保研路线，还需要更扎实的科研经历。`);
     } else {
         player.baoyanQualified = false;
         UI.showMessageModal("🎓 保研结果", `很遗憾。<br>你的GPA (${player.gpa.toFixed(2)}) 未达到本专业保研线 (${threshold})。<br>你没有获得保研资格。`);
     }
+
+    syncBaoyanFlow();
+}
+
+function logProjectUpdates(logs) {
+    logs.forEach((entry) => {
+        if (entry.type === 'monthly' && entry.applied?.length) {
+            const text = entry.applied.map((item) => formatProjectEffect(item.key, item.value)).join('，');
+            UI.addLogEntry(`📌 ${entry.project.name} 月度积累：${text}`);
+        }
+
+        if (entry.type === 'final' && entry.result?.ok) {
+            const text = entry.result.rewardSummary?.map((item) => formatProjectEffect(item.key, item.value)).join('，') || '无额外收益';
+            const verb = entry.result.status === 'completed' ? '顺利完成' : '未能完成';
+            const type = entry.result.status === 'completed' ? 'positive' : 'negative';
+            UI.addLogEntry(`🏁 ${entry.project.name}${verb}：${text}`, type);
+        }
+    });
+}
+
+function formatProjectEffect(key, value) {
+    const names = {
+        knowledge: '学识',
+        skill: '技能',
+        social: '社交',
+        health: '健康',
+        money: '金钱',
+        research: '科研分',
+        postgraduate: '升学分',
+        career: '就业分'
+    };
+    const sign = value > 0 ? '+' : '';
+    return `${names[key] || key}${sign}${value}`;
 }
 
 function sanitizeStats() {

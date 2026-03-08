@@ -8,12 +8,115 @@ import { nextMonth } from './core/gameloop.js';
 import { handleAction, handleInternLoop } from './features/actions.js';
 import { SaveSystem } from './systems/save.js';
 import { EventSystem } from './systems/event.js';
+import { abandonProject, advanceProject, contactMentor, ensureProjectState, followMentor, startProject } from './features/projects.js';
 
 window.handleAction = handleAction;
 window.handleInternLoop = handleInternLoop;
 window.UI = UI;
 window.SaveSystem = SaveSystem;
 window.EventSystem = EventSystem;
+
+function refreshProjectCenter() {
+    if (document.body.dataset.activeTab === 'project') {
+        UI.renderProjectCenter();
+    }
+}
+
+function handleProjectResult(result, successText) {
+    if (!result.ok) {
+        UI.showMessageModal('提示', result.message || '当前无法执行该操作。');
+        return;
+    }
+
+    if (successText) {
+        UI.addLogEntry(successText, 'positive');
+    }
+
+    UI.updateAll();
+    refreshProjectCenter();
+}
+
+window.startProjectTemplate = function(templateId) {
+    const result = startProject(templateId);
+    if (!result.ok) {
+        UI.showMessageModal('项目中心', result.message || '当前无法启动该项目。');
+        return;
+    }
+
+    UI.addLogEntry(`🚀 已启动项目：${result.project.name}`, 'positive');
+    UI.updateAll();
+    refreshProjectCenter();
+};
+
+window.advanceProjectEntry = function(projectId) {
+    const result = advanceProject(projectId);
+    if (!result.ok) {
+        UI.showMessageModal('项目中心', result.message || '当前无法推进该项目。');
+        return;
+    }
+
+    const effectText = result.immediateEffects.map((item) => `${projectEffectName(item.key)}${item.value > 0 ? '+' : ''}${item.value}`).join('，');
+    UI.addLogEntry(`📚 推进${result.project.name}：进度+${result.progressGain}%${effectText ? `，${effectText}` : ''}`, 'positive');
+    result.milestones.forEach((milestone) => {
+        UI.addLogEntry(`🚩 ${result.project.name}：${milestone.title}`, 'positive');
+    });
+
+    if (result.completion?.ok) {
+        const type = result.completion.status === 'completed' ? 'positive' : 'negative';
+        const text = result.completion.status === 'completed' ? `🏁 ${result.project.name} 已顺利结项` : `🏁 ${result.project.name} 未能按时完成`;
+        UI.addLogEntry(text, type);
+    }
+
+    UI.updateAll();
+    refreshProjectCenter();
+};
+
+window.abandonProjectEntry = function(projectId) {
+    UI.showConfirmModal('确定要放弃当前项目吗？<br>放弃会带来一定的健康与社交损失。', () => {
+        const result = abandonProject(projectId);
+        handleProjectResult(result, `⛔ 已放弃项目：${result.archived.name}`);
+    });
+};
+
+window.contactProjectMentor = function(mentorId) {
+    const result = contactMentor(mentorId);
+    if (!result.ok) {
+        UI.showMessageModal('联系导师', result.message || '当前无法联系导师。');
+        return;
+    }
+
+    UI.addLogEntry(`📨 已联系导师：${result.mentor.name}（匹配度 ${result.replyScore}）`, 'positive');
+    UI.updateAll();
+    refreshProjectCenter();
+};
+
+window.followProjectMentor = function() {
+    const result = followMentor();
+    if (!result.ok) {
+        UI.showMessageModal('联系导师', result.message || '当前无法继续跟进。');
+        return;
+    }
+
+    const textMap = {
+        replied: '导师给出了积极回复，建议继续保持联系。',
+        accepted: '导师明确表达了接收意向，恭喜你拿到了重要进展。',
+        rejected: '这次联系没有成功，可以调整方向再试。'
+    };
+    UI.addLogEntry(`📬 导师联系结果：${textMap[result.status] || '流程已更新。'}`, result.accepted ? 'positive' : result.status === 'rejected' ? 'negative' : 'normal');
+    UI.updateAll();
+    refreshProjectCenter();
+};
+
+function projectEffectName(key) {
+    const names = {
+        knowledge: '学识',
+        skill: '技能',
+        social: '社交',
+        health: '健康',
+        money: '金钱'
+    };
+    return names[key] || key;
+}
 
 function generateCreditPlan(total) {
     let plan = [];
@@ -99,6 +202,7 @@ function rollAttributes() {
 function startGame() {
     document.getElementById('admission-modal').style.display = 'none';
     player.money = player.family.allowance * 2;
+    ensureProjectState();
 
     UI.updateAll();
 
@@ -118,6 +222,7 @@ function startGame() {
 document.addEventListener('DOMContentLoaded', () => {
     // 主题（深色模式）
     initThemeToggle();
+    ensureProjectState();
 
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', (e) => UI.switchTab(e.currentTarget.dataset.tab));
