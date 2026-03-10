@@ -208,6 +208,14 @@ body.theme-dark {
 .tab-pane.active { display: block; animation: fadeIn 0.3s ease; }
 #tab-home.tab-pane.active { display: flex; }
 
+/* 项目/系统/商店页使用自然高度，避免内容超出后出现双层滚动 */
+#tab-project,
+#tab-system,
+#tab-shop {
+    height: auto;
+    min-height: 100%;
+}
+
 /* 行动区域标题 */
 .action-section-title {
     margin-bottom: 20px;
@@ -759,12 +767,12 @@ body.theme-dark {
     }
 
     .project-center {
-        padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 64px);
+        padding-bottom: 18px;
     }
 
     .project-history-card {
         margin-bottom: 8px;
-        scroll-margin-bottom: calc(env(safe-area-inset-bottom, 0px) + 84px);
+        scroll-margin-bottom: 72px;
     }
 }
 
@@ -1447,6 +1455,8 @@ body.theme-dark {
         overflow: hidden;
         height: 100vh;
         height: 100dvh; /* 兼容移动Safari */
+        --mobile-nav-height: 48px;
+        --mobile-bottom-reserve: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom, 0px) + 10px);
     }
     .container {
         height: 100vh;
@@ -1566,7 +1576,7 @@ body.theme-dark {
         padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 1px);
         gap: 0;
         height: auto; /* 确保高度自适应 */
-        min-height: 48px; /* 压低底栏，给内容区更多可视空间 */
+        min-height: var(--mobile-nav-height); /* 压低底栏，给内容区更多可视空间 */
     }
     .mobile-bottom-nav .tab-btn {
         flex: 1;
@@ -1734,7 +1744,7 @@ body.theme-dark {
         margin-bottom: 0; /* 移除底部margin，避免产生间隙 */
         border-radius: 10px;
         position: sticky; /* 始终贴在可视底部上方 */
-        bottom: calc(env(safe-area-inset-bottom, 0px) + 50px); /* 跟随缩小后的底部导航 */
+        bottom: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom, 0px) + 2px); /* 跟随底栏高度自动避让 */
         z-index: 5;
     }
 
@@ -1805,15 +1815,31 @@ body.theme-dark {
     /* 成就Toast */
     .achievement-toast { top: 10px; left: 12px; right: 12px; max-width: none; padding: 14px 16px; gap: 10px; }
 
-    /* 系统页可见性修复：压缩间距 + 底部留白避免被导航挡住 */
+    /* 系统页与项目页：统一交给外层滚动，末尾留安全占位避免被底栏遮挡 */
+    #tab-project,
     #tab-system {
-        overflow-y: auto;
-        padding-bottom: 62px;
+        overflow: visible;
+        padding-bottom: 0;
     }
+
+    .project-center {
+        padding-bottom: 0;
+    }
+
     .system-page {
         gap: 10px;
         padding-bottom: 6px;
     }
+
+    .project-center::after,
+    .system-page::after {
+        content: '';
+        display: block;
+        height: var(--mobile-bottom-reserve);
+        min-height: 56px;
+        pointer-events: none;
+    }
+
     .system-section { gap: 8px; }
     .system-card { padding: 10px; }
     .system-row-desc { font-size: 11px; }
@@ -1827,7 +1853,7 @@ body.theme-dark {
 
     body[data-active-tab="project"] .center-content-area,
     body[data-active-tab="system"] .center-content-area {
-        padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
+        padding-bottom: 6px;
     }
 
     /* 档案区重排收尾：学分卡+6项属性整齐紧凑 */
