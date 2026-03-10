@@ -475,6 +475,7 @@ body.theme-dark {
     display: flex;
     flex-direction: column;
     gap: 18px;
+    padding-bottom: 32px;
 }
 
 .project-header-block {
@@ -500,6 +501,11 @@ body.theme-dark {
     border-radius: 14px;
     padding: 16px;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04);
+}
+
+.project-history-card {
+    margin-bottom: 20px;
+    scroll-margin-bottom: 100px;
 }
 
 .project-score-grid {
@@ -750,6 +756,15 @@ body.theme-dark {
     .project-main-layout,
     .project-catalog-grid {
         grid-template-columns: 1fr;
+    }
+
+    .project-center {
+        padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 96px);
+    }
+
+    .project-history-card {
+        margin-bottom: 12px;
+        scroll-margin-bottom: calc(env(safe-area-inset-bottom, 0px) + 120px);
     }
 }
 
