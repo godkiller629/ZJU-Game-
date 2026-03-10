@@ -216,6 +216,12 @@ body.theme-dark {
     min-height: 100%;
 }
 
+/* 项目页与系统页在桌面端也预留底部滚动空间，防止末尾内容贴边被遮挡 */
+body[data-active-tab="project"] .center-content-area,
+body[data-active-tab="system"] .center-content-area {
+    padding-bottom: 28px;
+}
+
 /* 行动区域标题 */
 .action-section-title {
     margin-bottom: 20px;
@@ -483,7 +489,17 @@ body.theme-dark {
     display: flex;
     flex-direction: column;
     gap: 18px;
-    padding-bottom: 32px;
+    padding-bottom: 10px;
+}
+
+.project-center::after,
+.system-page::after {
+    content: '';
+    display: block;
+    height: 36px;
+    min-height: 24px;
+    flex-shrink: 0;
+    pointer-events: none;
 }
 
 .project-header-block {
