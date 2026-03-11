@@ -8,7 +8,7 @@ import { nextMonth } from './core/gameloop.js';
 import { handleAction, handleInternLoop } from './features/actions.js';
 import { SaveSystem } from './systems/save.js';
 import { EventSystem } from './systems/event.js';
-import { abandonProject, advanceProject, contactMentor, ensureProjectState, followMentor, startProject } from './features/projects.js';
+import { abandonProject, advanceProject, ensureProjectState, startProject } from './features/projects.js';
 
 window.handleAction = handleAction;
 window.handleInternLoop = handleInternLoop;
@@ -76,35 +76,6 @@ window.abandonProjectEntry = function(projectId) {
         const result = abandonProject(projectId);
         handleProjectResult(result, `⛔ 已放弃项目：${result.archived.name}`);
     });
-};
-
-window.contactProjectMentor = function(mentorId) {
-    const result = contactMentor(mentorId);
-    if (!result.ok) {
-        UI.showMessageModal('联系导师', result.message || '当前无法联系导师。');
-        return;
-    }
-
-    UI.addLogEntry(`📨 已联系导师：${result.mentor.name}（匹配度 ${result.replyScore}）`, 'positive');
-    UI.updateAll();
-    refreshProjectCenter();
-};
-
-window.followProjectMentor = function() {
-    const result = followMentor();
-    if (!result.ok) {
-        UI.showMessageModal('联系导师', result.message || '当前无法继续跟进。');
-        return;
-    }
-
-    const textMap = {
-        replied: '导师给出了积极回复，建议继续保持联系。',
-        accepted: '导师明确表达了接收意向，恭喜你拿到了重要进展。',
-        rejected: '这次联系没有成功，可以调整方向再试。'
-    };
-    UI.addLogEntry(`📬 导师联系结果：${textMap[result.status] || '流程已更新。'}`, result.accepted ? 'positive' : result.status === 'rejected' ? 'negative' : 'normal');
-    UI.updateAll();
-    refreshProjectCenter();
 };
 
 function projectEffectName(key) {

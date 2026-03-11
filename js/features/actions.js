@@ -4,6 +4,7 @@ import { UI } from '../ui/ui.js';
 import { checkHealth, hasEnergy, checkAchievements } from './attributes.js';
 import { GAME_PARAMS } from '../config/parameters.js';
 import { actions, holidayActions, seniorActions } from '../config/data.js';
+import { onInternshipActionTick, startInternshipRecord } from './projects.js';
 
 const P = GAME_PARAMS;
 
@@ -62,6 +63,7 @@ export function handleAction(actionId) {
     if (actionId === 'intern' || actionId === 'holiday_intern') {
         UI.showConfirmModal("开启实习将锁定未来 <b>2个月</b> 的主要行动（含假期）。<br>确定要开始吗？", () => {
              player.internLock = 2;
+             startInternshipRecord();
              handleInternLoop();
         });
         return;
@@ -198,12 +200,17 @@ export function handleInternLoop() {
     safeAdd('social', P.INTERN.GAIN_SOCIAL);
     safeAdd('money', P.INTERN.MONEY, true);
     safeAdd('health', -P.INTERN.HEALTH_COST);
+    const internshipResult = onInternshipActionTick();
 
     // 实习锁定主要行动，直接进入次要阶段
     player.phase = 'minor';
 
     UI.updateAll();
     UI.addLogEntry(`💼 实习中：技能+${P.INTERN.GAIN_SKILL}，社交+${P.INTERN.GAIN_SOCIAL}，金钱+${P.INTERN.MONEY}`);
+
+    if (internshipResult?.completion?.ok) {
+        UI.addLogEntry('📁 本轮实习已自动归档到项目中心。', 'positive');
+    }
 }
 
 function doThesis(multiplier) {

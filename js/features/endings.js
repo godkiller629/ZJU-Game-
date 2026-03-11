@@ -86,13 +86,13 @@ export function getEndingResult(p) {
         text: '你顺利毕业，并带着持续准备考研的积累继续向更高的平台发起冲击。'
       };
     }
-    if (projectSummary.careerScore >= 18 || projectSummary.hasLongInternship) {
+    if (projectSummary.careerScore >= 18 || projectSummary.completedPracticeProjects > 0) {
       return {
         title: '结局 · 职场启程',
-        text: '你顺利毕业，把长期实习与项目经历转化成了求职竞争力，正式迈向职场。'
+        text: '你顺利毕业，把大学阶段的实习积累转化成了求职竞争力，正式迈向职场。'
       };
     }
-    if (projectSummary.researchScore >= 12 || projectSummary.hasCompletedSRTP) {
+    if (projectSummary.researchScore >= 12) {
       return {
         title: '结局 · 科研种子',
         text: '你顺利毕业，虽然没有走上保研线，但已经留下足够扎实的科研起点。'

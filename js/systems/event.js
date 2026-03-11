@@ -5336,9 +5336,50 @@ const EVENTS = [
 
 const EVENT_INDEX = new Map();
 
+function isZeroCostOption(option) {
+    if (!option || !option.cost) return true;
+    const costs = Object.values(option.cost);
+    if (costs.length === 0) return true;
+    return costs.every((value) => Number(value) <= 0);
+}
+
+function createFreeFallbackOption(eventId) {
+    return {
+        id: `${eventId}_free_fallback`,
+        text: '保留精力，暂不参与',
+        cost: null,
+        costDesc: '无消耗',
+        outcomes: [
+            {
+                weight: 100,
+                type: 'neutral',
+                subOutcomes: [
+                    {
+                        weight: 100,
+                        name: '先稳住状态',
+                        desc: '你决定先保留资源，等状态更好时再尝试类似机会。',
+                        icon: 'fas fa-pause-circle',
+                        effects: {},
+                        logType: 'normal'
+                    }
+                ]
+            }
+        ]
+    };
+}
+
+function ensureEventHasFreeOption(event) {
+    if (!event || !Array.isArray(event.options) || event.options.length === 0) return;
+    const hasFreeOption = event.options.some(isZeroCostOption);
+    if (!hasFreeOption) {
+        event.options.push(createFreeFallbackOption(event.id));
+    }
+}
+
 function indexEvents() {
     EVENT_INDEX.clear();
     EVENTS.forEach(event => {
+        ensureEventHasFreeOption(event);
         EVENT_INDEX.set(event.id, event);
     });
 }
@@ -5653,6 +5694,7 @@ export const EventSystem = {
 
     // 添加新事件（供外部扩展）
     addEvent(event) {
+        ensureEventHasFreeOption(event);
         EVENTS.push(event);
         EVENT_INDEX.set(event.id, event);
     },

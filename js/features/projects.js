@@ -3,6 +3,10 @@ import { GAME_PARAMS } from '../config/parameters.js';
 import { projectTemplates, mentorData } from '../config/data.js';
 
 const P = GAME_PARAMS.PROJECTS;
+const INTERN = GAME_PARAMS.INTERN;
+
+const KAOYAN_TEMPLATE_ID = 'kaoyan';
+const INTERNSHIP_RECORD_TEMPLATE_ID = 'internship_action';
 
 function clampStat(value, min, max) {
     return Math.min(Math.max(value, min), max);
@@ -14,6 +18,14 @@ function clone(value) {
 
 function currentDate() {
     return { year: player.year, month: player.month };
+}
+
+function getTemplate(templateId) {
+    return projectTemplates[templateId] || null;
+}
+
+function getKaoyanTemplate() {
+    return getTemplate(KAOYAN_TEMPLATE_ID);
 }
 
 function getPhaseMultiplier(kind) {
@@ -36,25 +48,6 @@ function consumeActionSlot(kind, cost) {
     player.energy = Math.max(0, player.energy - finalCost);
     player.phase = player.phase === 'major' ? 'minor' : 'done';
     return { ok: true, multiplier, finalCost };
-}
-
-function getTemplate(templateId) {
-    return projectTemplates[templateId] || null;
-}
-
-function getDateIndex(dateLike) {
-    return dateLike.year * 12 + dateLike.month;
-}
-
-function makeMilestones(template) {
-    return template.milestones.map((milestone, index) => ({
-        id: `${template.id}_milestone_${index + 1}`,
-        title: milestone.title,
-        threshold: milestone.threshold,
-        rewards: clone(milestone.rewards),
-        completed: false,
-        completedAt: null
-    }));
 }
 
 function applyEffects(effects = {}, multiplier = 1) {
@@ -84,27 +77,35 @@ function applyEffects(effects = {}, multiplier = 1) {
     return summary;
 }
 
-function getHistoryByTemplate(templateId) {
-    return player.projectHistory.filter((item) => item.templateId === templateId);
-}
-
-function getActiveProjectByKind(kind) {
-    return player.projects.find((project) => project.kind === kind && project.status === 'active') || null;
+function computeRouteFocus() {
+    const entries = Object.entries(player.routeScores || { research: 0, postgraduate: 0, career: 0 });
+    entries.sort((a, b) => b[1] - a[1]);
+    const [topKey, topValue] = entries[0];
+    player.routeFocus = topValue > 0 ? topKey : 'balanced';
+    return player.routeFocus;
 }
 
 function getProjectById(projectId) {
     return player.projects.find((project) => project.id === projectId) || null;
 }
 
-function syncActiveIds() {
-    const activeMain = getActiveProjectByKind('main');
-    const activeExperience = getActiveProjectByKind('experience');
+function getActiveKaoyanProject() {
+    return player.projects.find((project) => project.templateId === KAOYAN_TEMPLATE_ID && project.status === 'active') || null;
+}
 
-    player.activeMainProjectId = activeMain ? activeMain.id : null;
-    player.activeExperienceId = activeExperience ? activeExperience.id : null;
+function getActiveInternshipRecord() {
+    return player.projects.find((project) => project.templateId === INTERNSHIP_RECORD_TEMPLATE_ID && project.status === 'active') || null;
+}
+
+function syncActiveIds() {
+    const activeKaoyan = getActiveKaoyanProject();
+    const activeIntern = getActiveInternshipRecord();
+
+    player.activeMainProjectId = activeKaoyan ? activeKaoyan.id : null;
+    player.activeExperienceId = activeIntern ? activeIntern.id : null;
 
     if (player.selectedProjectId && !getProjectById(player.selectedProjectId)) {
-        player.selectedProjectId = activeMain ? activeMain.id : activeExperience ? activeExperience.id : null;
+        player.selectedProjectId = activeKaoyan ? activeKaoyan.id : activeIntern ? activeIntern.id : null;
     }
 }
 
@@ -118,24 +119,41 @@ function archiveProject(project, status) {
     return archived;
 }
 
-function finalizeProject(project) {
-    const template = getTemplate(project.templateId);
+function getMonthsToDecember() {
+    return Math.max(0, 12 - player.month);
+}
+
+function getKaoyanAvailability() {
+    const template = getKaoyanTemplate();
     if (!template) {
-        return { ok: false, message: '项目模板不存在。' };
+        return { canStart: false, blockedReason: '考研模板缺失。' };
     }
 
-    const status = project.progress >= template.completionThreshold ? 'completed' : 'failed';
-    let rewardSummary = [];
+    const active = getActiveKaoyanProject();
+    const completed = player.projectHistory.some((item) => item.templateId === KAOYAN_TEMPLATE_ID && item.status === 'completed');
 
-    if (status === 'completed') {
-        rewardSummary = applyEffects(template.rewards, 1);
-        applyEffects(template.routeImpact, 1);
-    } else {
-        rewardSummary = applyEffects({ health: -2, social: -1 }, 1);
-    }
+    let blockedReason = '';
+    const unlocked = !!template.unlock(player);
 
-    const archived = archiveProject(project, status);
-    return { ok: true, status, archived, rewardSummary };
+    if (!unlocked) blockedReason = template.lockReason;
+    else if (active) blockedReason = '当前已有进行中的考研项目。';
+    else if (completed && !template.repeatable) blockedReason = '本局已完成考研项目。';
+
+    return {
+        canStart: unlocked && !active && !(completed && !template.repeatable),
+        blockedReason
+    };
+}
+
+function makeKaoyanMilestones(template) {
+    return (template.milestones || []).map((milestone, index) => ({
+        id: `${template.id}_milestone_${index + 1}`,
+        title: milestone.title,
+        threshold: milestone.threshold,
+        rewards: clone(milestone.rewards),
+        completed: false,
+        completedAt: null
+    }));
 }
 
 function settleMilestones(project) {
@@ -151,25 +169,39 @@ function settleMilestones(project) {
     return completed;
 }
 
-function computeRouteFocus() {
-    const entries = Object.entries(player.routeScores);
-    entries.sort((a, b) => b[1] - a[1]);
-    const [topKey, topValue] = entries[0];
-    player.routeFocus = topValue > 0 ? topKey : 'balanced';
-    return player.routeFocus;
+function finalizeKaoyan(project) {
+    const template = getKaoyanTemplate();
+    if (!template) {
+        return { ok: false, message: '考研模板不存在。' };
+    }
+
+    const status = project.progress >= template.completionThreshold ? 'completed' : 'failed';
+    let rewardSummary = [];
+
+    if (status === 'completed') {
+        rewardSummary = applyEffects(template.rewards, 1);
+        applyEffects(template.routeImpact, 1);
+    } else {
+        rewardSummary = applyEffects({ health: -2 }, 1);
+    }
+
+    const archived = archiveProject(project, status);
+    return { ok: true, status, archived, rewardSummary };
 }
 
-function calculateMentorReplyScore(mentor) {
-    const summary = getProjectEndingSummary();
-    let score = player.gpa * 18;
-    score += player.routeScores.research * 2.5;
-    score += player.social * 0.25;
-    score += summary.completedResearchProjects * 8;
-
-    if (mentor && mentor.focus === 'research') score += 8;
-    if (mentor && mentor.focus === 'postgraduate') score += 6;
-
-    return Math.round(clampStat(score, 0, 100));
+function finalizeInternshipRecord(record) {
+    const archived = archiveProject(record, 'completed');
+    return {
+        ok: true,
+        status: 'completed',
+        archived,
+        rewardSummary: [
+            { key: 'money', value: record.moneyGained || 0 },
+            { key: 'skill', value: record.skillGained || 0 },
+            { key: 'social', value: record.socialGained || 0 },
+            { key: 'health', value: -(record.healthCost || 0) }
+        ].filter((item) => item.value !== 0)
+    };
 }
 
 export function ensureProjectState() {
@@ -178,12 +210,14 @@ export function ensureProjectState() {
     if (player.activeMainProjectId === undefined) player.activeMainProjectId = null;
     if (player.activeExperienceId === undefined) player.activeExperienceId = null;
     if (player.selectedProjectId === undefined) player.selectedProjectId = null;
+
     player.routeScores = {
         research: 0,
         postgraduate: 0,
         career: 0,
         ...(player.routeScores || {})
     };
+
     player.baoyanFlow = {
         qualified: false,
         unlockedAt: null,
@@ -193,47 +227,31 @@ export function ensureProjectState() {
         accepted: false,
         ...(player.baoyanFlow || {})
     };
+
     computeRouteFocus();
     syncActiveIds();
 }
 
 export function getProjectCatalog() {
     ensureProjectState();
-    return Object.values(projectTemplates).map((template) => {
-        const existingHistory = getHistoryByTemplate(template.id);
-        const activeProject = player.projects.find((project) => project.templateId === template.id);
-        const slotOccupied = template.kind === 'main' ? !!getActiveProjectByKind('main') : !!getActiveProjectByKind('experience');
-        const unlocked = !!template.unlock(player);
-        const alreadyDone = !template.repeatable && existingHistory.some((item) => item.status === 'completed');
 
-        let blockedReason = '';
-        if (!unlocked) blockedReason = template.lockReason;
-        else if (alreadyDone) blockedReason = '该项目已完成，无需重复开启。';
-        else if (activeProject) blockedReason = '该项目已经在进行中。';
-        else if (slotOccupied) blockedReason = template.kind === 'main' ? '已有正在推进的主项目。' : '已有正在进行的短期经历。';
+    const template = getKaoyanTemplate();
+    if (!template) return [];
 
-        return {
-            ...template,
-            unlocked,
-            alreadyDone,
-            active: !!activeProject,
-            blockedReason,
-            canStart: unlocked && !alreadyDone && !activeProject && !slotOccupied
-        };
-    });
+    const availability = getKaoyanAvailability();
+    const active = !!getActiveKaoyanProject();
+
+    return [{
+        ...template,
+        active,
+        canStart: availability.canStart,
+        blockedReason: availability.blockedReason
+    }];
 }
 
 export function createProjectInstance(templateId) {
     const template = getTemplate(templateId);
-    if (!template) return null;
-
-    const now = currentDate();
-    const endIndex = getDateIndex(now) + template.duration - 1;
-    const endAt = {
-        year: Math.floor(endIndex / 12),
-        month: endIndex % 12 || 12
-    };
-    if (endAt.month === 12 && endIndex % 12 === 0) endAt.year -= 1;
+    if (!template || templateId !== KAOYAN_TEMPLATE_ID) return null;
 
     return {
         id: `${template.id}_${Date.now()}`,
@@ -243,15 +261,13 @@ export function createProjectInstance(templateId) {
         name: template.name,
         icon: template.icon,
         status: 'active',
-        phase: 'proposal',
+        phase: 'progress',
         progress: 0,
         quality: 50,
-        monthsRemaining: template.duration,
-        duration: template.duration,
-        startAt: now,
-        endAt,
-        season: template.season,
-        milestones: makeMilestones(template),
+        startAt: currentDate(),
+        settleMonth: template.settleMonth || 12,
+        monthsToSettle: getMonthsToDecember(),
+        milestones: makeKaoyanMilestones(template),
         rewards: clone(template.rewards),
         routeImpact: clone(template.routeImpact)
     };
@@ -259,50 +275,54 @@ export function createProjectInstance(templateId) {
 
 export function startProject(templateId) {
     ensureProjectState();
-    const catalogItem = getProjectCatalog().find((item) => item.id === templateId);
-    if (!catalogItem) return { ok: false, message: '项目模板不存在。' };
-    if (!catalogItem.canStart) return { ok: false, message: catalogItem.blockedReason || '当前无法启动该项目。' };
 
-    const instance = createProjectInstance(templateId);
-    if (!instance) return { ok: false, message: '项目创建失败。' };
+    if (templateId !== KAOYAN_TEMPLATE_ID) {
+        return { ok: false, message: '当前版本项目中心仅保留考研项目。' };
+    }
 
-    player.projects.push(instance);
-    player.selectedProjectId = instance.id;
+    const availability = getKaoyanAvailability();
+    if (!availability.canStart) {
+        return { ok: false, message: availability.blockedReason || '当前无法开启考研项目。' };
+    }
+
+    const project = createProjectInstance(templateId);
+    if (!project) return { ok: false, message: '考研项目创建失败。' };
+
+    player.projects.push(project);
+    player.selectedProjectId = project.id;
     syncActiveIds();
-    computeRouteFocus();
 
-    return { ok: true, project: instance };
+    return { ok: true, project };
 }
 
 export function advanceProject(projectId) {
     ensureProjectState();
+
     const project = getProjectById(projectId);
-    if (!project || project.status !== 'active') {
+    if (!project || project.status !== 'active' || project.templateId !== KAOYAN_TEMPLATE_ID) {
         return { ok: false, message: '当前项目不存在或不可推进。' };
     }
 
-    const template = getTemplate(project.templateId);
-    if (!template) return { ok: false, message: '项目模板不存在。' };
+    if (player.month === (project.settleMonth || 12)) {
+        return { ok: false, message: '本月是考研结算月，无法继续推进。' };
+    }
 
-    const consumeResult = consumeActionSlot(project.kind, template.actionCost);
+    const template = getKaoyanTemplate();
+    const consumeResult = consumeActionSlot('main', template.actionCost || P.MAIN_ACTION_COST);
     if (!consumeResult.ok) return consumeResult;
 
-    const progressGain = Math.ceil(template.progressGain * consumeResult.multiplier);
-    const qualityGain = Math.ceil(template.qualityGain * consumeResult.multiplier);
-    const immediateEffects = applyEffects(template.immediateEffects, consumeResult.multiplier);
+    const progressGain = Math.ceil((template.progressGain || 24) * consumeResult.multiplier);
+    const qualityGain = Math.ceil((template.qualityGain || 8) * consumeResult.multiplier);
+    const immediateEffects = applyEffects(template.immediateEffects || { knowledge: 2, health: -2 }, consumeResult.multiplier);
 
-    project.progress = clampStat(project.progress + progressGain, 0, 100);
+    project.progress = clampStat(project.progress + progressGain, 0, 120);
     project.quality = clampStat(project.quality + qualityGain, 0, 100);
+    project.monthsToSettle = getMonthsToDecember();
 
     if (project.progress >= 85) project.phase = 'sprint';
     else if (project.progress >= 40) project.phase = 'progress';
 
     const milestones = settleMilestones(project);
-    let completion = null;
-    if (project.progress >= 100) {
-        completion = finalizeProject(project);
-    }
-
     computeRouteFocus();
 
     return {
@@ -313,52 +333,103 @@ export function advanceProject(projectId) {
         qualityGain,
         immediateEffects,
         milestones,
-        completion
+        completion: null
     };
 }
 
 export function abandonProject(projectId) {
     ensureProjectState();
-    const project = getProjectById(projectId);
-    if (!project) return { ok: false, message: '项目不存在。' };
 
-    applyEffects({ health: -3, social: -1 }, 1);
+    const project = getProjectById(projectId);
+    if (!project || project.templateId !== KAOYAN_TEMPLATE_ID) {
+        return { ok: false, message: '项目不存在。' };
+    }
+
+    applyEffects({ health: -2, social: -1 }, 1);
     const archived = archiveProject(project, 'abandoned');
     computeRouteFocus();
+
     return { ok: true, archived };
+}
+
+export function startInternshipRecord() {
+    ensureProjectState();
+
+    const active = getActiveInternshipRecord();
+    if (active) return active;
+
+    const record = {
+        id: `${INTERNSHIP_RECORD_TEMPLATE_ID}_${Date.now()}`,
+        kind: 'record',
+        templateId: INTERNSHIP_RECORD_TEMPLATE_ID,
+        category: 'practice',
+        name: '实习记录',
+        icon: 'fas fa-briefcase',
+        status: 'active',
+        progress: 0,
+        quality: 0,
+        sessions: 0,
+        cyclesRemaining: Math.max(1, player.internLock + 1),
+        moneyGained: 0,
+        skillGained: 0,
+        socialGained: 0,
+        healthCost: 0,
+        startAt: currentDate()
+    };
+
+    player.projects.push(record);
+    syncActiveIds();
+
+    return record;
+}
+
+export function onInternshipActionTick() {
+    ensureProjectState();
+
+    let record = getActiveInternshipRecord();
+    if (!record) {
+        record = startInternshipRecord();
+    }
+
+    record.sessions += 1;
+    record.progress = clampStat(record.progress + 34, 0, 100);
+    record.quality = clampStat(record.quality + 30, 0, 100);
+    record.cyclesRemaining = Math.max(0, (record.cyclesRemaining || 0) - 1);
+
+    record.moneyGained += INTERN.MONEY;
+    record.skillGained += INTERN.GAIN_SKILL;
+    record.socialGained += INTERN.GAIN_SOCIAL;
+    record.healthCost += INTERN.HEALTH_COST;
+
+    let completion = null;
+    if (record.cyclesRemaining <= 0) {
+        completion = finalizeInternshipRecord(record);
+    }
+
+    syncActiveIds();
+    return { record: completion ? null : record, completion };
 }
 
 export function tickProjectsForNewMonth() {
     ensureProjectState();
     const logs = [];
 
-    [...player.projects].forEach((project) => {
-        if (project.status !== 'active') return;
+    // 兜底：如果因精力不足导致实习行动未执行，也要在锁定结束后归档记录。
+    const internshipRecord = getActiveInternshipRecord();
+    if (internshipRecord && player.internLock === 0) {
+        internshipRecord.cyclesRemaining = 0;
+        const result = finalizeInternshipRecord(internshipRecord);
+        logs.push({ type: 'final', project: internshipRecord, result });
+    }
 
-        project.monthsRemaining -= 1;
-
-        const template = getTemplate(project.templateId);
-        if (!template) return;
-
-        const monthlyEffects = {};
-        if (template.category === 'practice') {
-            monthlyEffects.skill = 1;
-            monthlyEffects.money = project.kind === 'experience' ? 600 : 500;
-            monthlyEffects.health = -1;
+    const kaoyanProject = getActiveKaoyanProject();
+    if (kaoyanProject) {
+        kaoyanProject.monthsToSettle = getMonthsToDecember();
+        if (player.month === (kaoyanProject.settleMonth || 12)) {
+            const result = finalizeKaoyan(kaoyanProject);
+            logs.push({ type: 'final', project: kaoyanProject, result });
         }
-        if (template.category === 'research') {
-            monthlyEffects.knowledge = 1;
-        }
-        const applied = applyEffects(monthlyEffects, 1);
-        if (applied.length > 0) {
-            logs.push({ type: 'monthly', project, applied });
-        }
-
-        if (project.monthsRemaining <= 0) {
-            const result = finalizeProject(project);
-            logs.push({ type: 'final', project, result });
-        }
-    });
+    }
 
     computeRouteFocus();
     return logs;
@@ -366,20 +437,19 @@ export function tickProjectsForNewMonth() {
 
 export function getProjectEndingSummary() {
     ensureProjectState();
+
     const history = player.projectHistory || [];
     const completed = history.filter((item) => item.status === 'completed');
+    const internshipCompleted = completed.filter((item) => item.templateId === INTERNSHIP_RECORD_TEMPLATE_ID).length;
 
     return {
         researchScore: player.routeScores.research || 0,
         postgraduateScore: player.routeScores.postgraduate || 0,
         careerScore: player.routeScores.career || 0,
-        completedResearchProjects: completed.filter((item) => item.category === 'research').length,
-        completedPracticeProjects: completed.filter((item) => item.category === 'practice').length,
-        completedCareerProjects: completed.filter((item) => item.category === 'career').length,
-        hasCompletedSRTP: completed.some((item) => item.templateId === 'srtp'),
-        hasCompletedKaoyan: completed.some((item) => item.templateId === 'kaoyan'),
-        hasLongInternship: completed.some((item) => item.templateId === 'long_internship'),
-        hasShortInternship: completed.some((item) => item.templateId === 'short_internship'),
+        completedResearchProjects: 0,
+        completedPracticeProjects: internshipCompleted,
+        completedCareerProjects: internshipCompleted,
+        hasCompletedKaoyan: completed.some((item) => item.templateId === KAOYAN_TEMPLATE_ID),
         mentorAccepted: !!player.baoyanFlow?.accepted,
         routeFocus: computeRouteFocus()
     };
@@ -387,7 +457,7 @@ export function getProjectEndingSummary() {
 
 export function canQualifyBaoyan() {
     const summary = getProjectEndingSummary();
-    return summary.researchScore >= P.BAOYAN_RESEARCH_THRESHOLD || summary.hasCompletedSRTP || summary.completedResearchProjects > 0;
+    return summary.researchScore >= P.BAOYAN_RESEARCH_THRESHOLD || player.knowledge >= 88;
 }
 
 export function syncBaoyanFlow() {
@@ -412,74 +482,32 @@ export function getMentorCandidates() {
     return mentorData[player.faculty] || [];
 }
 
-export function contactMentor(mentorId) {
-    ensureProjectState();
-    if (!player.baoyanQualified) {
-        return { ok: false, message: '尚未获得保研资格，暂时无法联系导师。' };
-    }
-    if (player.baoyanFlow.contactStatus !== 'available' && player.baoyanFlow.contactStatus !== 'replied') {
-        return { ok: false, message: '当前联系导师流程暂不可用。' };
-    }
-
-    const mentor = getMentorCandidates().find((item) => item.id === mentorId);
-    if (!mentor) return { ok: false, message: '导师不存在。' };
-
-    const consumeResult = consumeActionSlot('main', P.MENTOR_CONTACT_COST);
-    if (!consumeResult.ok) return consumeResult;
-
-    player.baoyanFlow.targetMentorId = mentor.id;
-    player.baoyanFlow.contactStatus = 'contacted';
-    player.baoyanFlow.replyScore = calculateMentorReplyScore(mentor);
-
-    return { ok: true, mentor, consumeResult, replyScore: player.baoyanFlow.replyScore };
+export function contactMentor() {
+    return { ok: false, message: '当前版本已关闭导师联系流程。' };
 }
 
 export function followMentor() {
-    ensureProjectState();
-    if (!player.baoyanQualified) {
-        return { ok: false, message: '尚未获得保研资格。' };
-    }
-    if (player.baoyanFlow.contactStatus !== 'contacted' && player.baoyanFlow.contactStatus !== 'replied') {
-        return { ok: false, message: '当前没有可跟进的导师联系。' };
-    }
-
-    const consumeResult = consumeActionSlot('main', P.MENTOR_FOLLOW_COST);
-    if (!consumeResult.ok) return consumeResult;
-
-    const score = player.baoyanFlow.replyScore;
-    let status = 'rejected';
-    let accepted = false;
-
-    if (score >= 85) {
-        status = 'accepted';
-        accepted = true;
-    } else if (score >= 65 && player.baoyanFlow.contactStatus === 'contacted') {
-        status = 'replied';
-    } else if (score >= 70 && player.baoyanFlow.contactStatus === 'replied') {
-        status = 'accepted';
-        accepted = true;
-    }
-
-    player.baoyanFlow.contactStatus = status;
-    player.baoyanFlow.accepted = accepted;
-    return { ok: true, status, accepted, consumeResult, replyScore: score };
+    return { ok: false, message: '当前版本已关闭导师联系流程。' };
 }
 
 export function getProjectCenterState() {
     ensureProjectState();
-    const catalog = getProjectCatalog();
-    const mentors = getMentorCandidates();
+
+    const kaoyanAvailability = getKaoyanAvailability();
+    const activeKaoyan = getActiveKaoyanProject();
+    const activeInternship = getActiveInternshipRecord();
+
+    const internshipHistory = player.projectHistory.filter((item) => item.templateId === INTERNSHIP_RECORD_TEMPLATE_ID);
 
     return {
-        routeFocus: computeRouteFocus(),
-        routeScores: clone(player.routeScores),
-        activeMainProject: getActiveProjectByKind('main'),
-        activeExperience: getActiveProjectByKind('experience'),
-        selectedProjectId: player.selectedProjectId,
-        mainCatalog: catalog.filter((item) => item.kind === 'main'),
-        experienceCatalog: catalog.filter((item) => item.kind === 'experience'),
-        history: clone(player.projectHistory).slice(0, 8),
-        baoyanFlow: clone(player.baoyanFlow),
-        mentorCandidates: clone(mentors)
+        kaoyan: {
+            activeProject: activeKaoyan ? clone(activeKaoyan) : null,
+            canStart: kaoyanAvailability.canStart,
+            blockedReason: kaoyanAvailability.blockedReason,
+            settleMonth: getKaoyanTemplate()?.settleMonth || 12
+        },
+        internshipActive: activeInternship ? clone(activeInternship) : null,
+        internshipHistory: clone(internshipHistory).slice(0, 6),
+        history: clone(player.projectHistory).slice(0, 10)
     };
 }
