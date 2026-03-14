@@ -1,6 +1,6 @@
 // js/ui/ui.js
 import { player } from '../core/state.js';
-import { holidayActions, actions, seniorActions, collegesData, achievementList } from '../config/data.js';
+import { holidayActions, actions, seniorActions, collegesData, achievementList, skills } from '../config/data.js';
 import { SaveSystem } from '../systems/save.js';
 import { GAME_PARAMS } from '../config/parameters.js';
 import { getProjectCenterState } from '../features/projects.js';
@@ -432,16 +432,16 @@ export const UI = {
     renderSkills() {
         const container = document.getElementById('skills');
         if (!container) return;
-        
-        if (player.achievements.length === 0) {
-            container.innerHTML = '<div style="color:var(--text-1); font-size:12px; text-align:center; padding:10px;">暂无成就</div>';
+
+        const unlockedAchievements = achievementList.filter(a => player.achievements.includes(a.id));
+        const unlockedSkillBadges = skills.filter(s => (player.unlockedSkills || []).includes(s.id));
+
+        if (unlockedAchievements.length === 0 && unlockedSkillBadges.length === 0) {
+            container.innerHTML = '<div style="color:var(--text-1); font-size:12px; text-align:center; padding:10px;">暂无成就与技能</div>';
             return;
         }
 
-        // 筛选已解锁的成就
-        const unlocked = achievementList.filter(a => player.achievements.includes(a.id));
-        
-        container.innerHTML = unlocked.map(a => {
+        const achievementHtml = unlockedAchievements.map(a => {
             // 定义颜色映射
             const colors = {
                 'gold': { bg: '#fff9c4', iconBg: '#fff176', iconColor: '#f57f17', border: '#fbc02d' },
@@ -463,6 +463,27 @@ export const UI = {
             </div>
             `;
         }).join('');
+
+        const skillsHtml = unlockedSkillBadges.map(s => `
+            <div class="skill-item" style="display:flex; align-items:center; margin-bottom:8px; padding:8px; background:var(--surface-1); border:1px solid var(--border-0); border-radius:8px;">
+                <div class="skill-icon" style="width:32px; height:32px; background:var(--surface-2); color:var(--primary-color); border-radius:50%; display:flex; align-items:center; justify-content:center; margin-right:10px;">
+                    <i class="${s.icon}" style="font-size:16px;"></i>
+                </div>
+                <div class="skill-info">
+                    <div class="skill-name" style="font-weight:bold; font-size:13px; color:var(--text-0);">${s.name}</div>
+                    <div class="skill-desc" style="font-size:11px; color:var(--text-1);">${s.desc}</div>
+                </div>
+            </div>
+        `).join('');
+
+        const achievementSection = unlockedAchievements.length > 0
+            ? `<div style="font-size:12px; color:var(--text-1); margin:4px 0 8px;">成就</div>${achievementHtml}`
+            : '';
+        const skillSection = unlockedSkillBadges.length > 0
+            ? `<div style="font-size:12px; color:var(--text-1); margin:4px 0 8px;">技能</div>${skillsHtml}`
+            : '';
+
+        container.innerHTML = `${achievementSection}${skillSection}`;
     },
 
     // 显示成就解锁弹窗

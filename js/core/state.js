@@ -40,7 +40,7 @@ export const player = {
     thesis: 0, // 论文进度
     internLock: 0,
     family: { type: 'ordinary', allowance: 1500, name: '普通' },
-    unlockedSkills: [], // 暂存成就ID
+    unlockedSkills: [],
     achievements: [],
     eventState: {
         triggeredEvents: [],

@@ -1,7 +1,7 @@
 // js/features/attributes.js
 import { player } from '../core/state.js';
 import { UI } from '../ui/ui.js';
-import { achievementList } from '../config/data.js';
+import { achievementList, skills } from '../config/data.js';
 import { GAME_PARAMS } from '../config/parameters.js';
 
 const P = GAME_PARAMS;
@@ -41,6 +41,10 @@ export function calculateSemesterGPA() {
 }
 
 export function checkAchievements() {
+    if (!Array.isArray(player.unlockedSkills)) {
+        player.unlockedSkills = [];
+    }
+
     achievementList.forEach(a => {
         if (!player.achievements.includes(a.id) && a.cond(player)) {
             player.achievements.push(a.id);
@@ -51,6 +55,21 @@ export function checkAchievements() {
             // player.money += 1000; 
             
             // 关键：为了防止延迟，这里直接再次显式调用一次渲染，确保万无一失
+            UI.renderSkills();
+        }
+    });
+
+    skills.forEach(s => {
+        if (!player.unlockedSkills.includes(s.id) && s.cond(player)) {
+            player.unlockedSkills.push(s.id);
+            UI.showMessageModal(
+                `✨ 解锁技能：${s.name}`,
+                `<div style="text-align:center;">
+                    <div style="font-size:40px; color:var(--primary-color); margin-bottom:12px;"><i class="${s.icon}"></i></div>
+                    <p style="font-weight:bold; margin-bottom:4px;">${s.desc}</p>
+                    <p style="color:var(--text-1); font-size:12px;">(已收录至右侧技能栏)</p>
+                 </div>`
+            );
             UI.renderSkills();
         }
     });
