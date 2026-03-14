@@ -74,9 +74,9 @@ export const achievementList = [
 
 // 技能徽章
 export const skills = [
-    { id: 'skill_growth', name: '技能新秀', icon: 'fas fa-seedling', desc: '技能达到70', cond: p => p.skill >= 70 },
-    { id: 'skill_pro', name: '技能高手', icon: 'fas fa-laptop-code', desc: '技能达到85', cond: p => p.skill >= 85 },
-    { id: 'skill_master', name: '技能大师', icon: 'fas fa-medal', desc: '技能达到100', cond: p => p.skill >= 100 },
+    { id: 'skill_70', name: '技能新秀', icon: 'fas fa-seedling', desc: '技能达到70', cond: p => p.skill >= 70 },
+    { id: 'skill_85', name: '技能高手', icon: 'fas fa-laptop-code', desc: '技能达到85', cond: p => p.skill >= 85 },
+    { id: 'skill_100', name: '技能大师', icon: 'fas fa-medal', desc: '技能达到100', cond: p => p.skill >= 100 },
     { id: 'all_rounder', name: '全能选手', icon: 'fas fa-star', desc: '学识、社交、技能均达到85', cond: p => p.knowledge >= 85 && p.social >= 85 && p.skill >= 85 }
 ];
 
